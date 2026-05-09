@@ -1,0 +1,9 @@
+{
+  "extends": "../../packages/config/tsconfig/react-library.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [".storybook/**/*", "stories/**/*"],
+  "exclude": ["node_modules", "storybook-static"]
+}
