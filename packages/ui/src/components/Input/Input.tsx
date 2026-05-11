@@ -45,8 +45,8 @@ export function Input({
             error
               ? "border-red-400 focus:ring-red-400"
               : "border-gray-300 focus:ring-blue-500",
-            leftIcon && "pl-9",
-            rightIcon && "pr-9",
+            !!leftIcon && "pl-9",
+            !!rightIcon && "pr-9",
             className
           )}
           aria-invalid={!!error}
