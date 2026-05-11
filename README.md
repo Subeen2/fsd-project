@@ -47,18 +47,18 @@ pnpm typecheck
 pnpm lint
 ```
 
-| 앱 | 주소 |
-|---|---|
-| Web | http://localhost:3000 |
-| API | http://localhost:3001 |
+| 앱        | 주소                   |
+| --------- | ---------------------- |
+| Web       | http://localhost:3000  |
+| API       | http://localhost:3001  |
 | WebSocket | ws://localhost:3001/ws |
-| Storybook | http://localhost:6006 |
+| Storybook | http://localhost:6006  |
 
 ---
 
 ## 아키텍처 RFC
 
-> 각 기술 선택의 이유를 기록합니다. "무엇"이 아닌 **왜**에 집중합니다.
+> 각 기술 선택의 이유. "무엇"이 아닌 **왜**에 집중합니다.
 
 ---
 
@@ -74,11 +74,11 @@ pnpm lint
 
 **대안 검토**:
 
-| 방식 | 탈락 이유 |
-|---|---|
-| 별도 레포 | 타입 계약 동기화 비용, 크로스 레포 PR 추적 어려움 |
-| Nx | 설정 복잡도 높음. 이 규모에서 오버킬 |
-| Yarn workspaces | pnpm 대비 디스크 사용량, 유령 의존성 문제 |
+| 방식            | 탈락 이유                                         |
+| --------------- | ------------------------------------------------- |
+| 별도 레포       | 타입 계약 동기화 비용, 크로스 레포 PR 추적 어려움 |
+| Nx              | 설정 복잡도 높음. 이 규모에서 오버킬              |
+| Yarn workspaces | pnpm 대비 디스크 사용량, 유령 의존성 문제         |
 
 ---
 
@@ -94,11 +94,11 @@ pnpm lint
 
 **대안 검토**:
 
-| 방식 | 탈락 이유 |
-|---|---|
-| Pages Router | RSC 불가, getServerSideProps 보일러플레이트 |
-| SPA (Vite + React) | 초기 렌더링 속도, SEO 불리 |
-| Remix | 좋은 선택지지만 Next.js 생태계·팀 친숙도 우선 |
+| 방식               | 탈락 이유                                     |
+| ------------------ | --------------------------------------------- |
+| Pages Router       | RSC 불가, getServerSideProps 보일러플레이트   |
+| SPA (Vite + React) | 초기 렌더링 속도, SEO 불리                    |
+| Remix              | 좋은 선택지지만 Next.js 생태계·팀 친숙도 우선 |
 
 ---
 
@@ -115,11 +115,11 @@ pnpm lint
 
 **대안 검토**:
 
-| 방식 | 탈락 이유 |
-|---|---|
-| Socket.io | 자체 프로토콜 레이어, 불필요한 추상화 |
-| SSE (Server-Sent Events) | 단방향(서버→클라이언트)만 가능 |
-| Long polling | 지연 높음, 연결 오버헤드 |
+| 방식                     | 탈락 이유                             |
+| ------------------------ | ------------------------------------- |
+| Socket.io                | 자체 프로토콜 레이어, 불필요한 추상화 |
+| SSE (Server-Sent Events) | 단방향(서버→클라이언트)만 가능        |
+| Long polling             | 지연 높음, 연결 오버헤드              |
 
 ---
 
@@ -136,12 +136,12 @@ pnpm lint
 
 **대안 검토**:
 
-| 방식 | 탈락 이유 |
-|---|---|
-| Panda CSS | 타입 안전하고 매력적이지만 Tailwind 생태계 친숙도, 아직 성숙도 부족 |
-| styled-components | 런타임 스타일 주입, RSC 비호환 |
-| CSS Modules | 네이밍 충돌 없지만 컴포넌트 간 스타일 공유 번거로움 |
-| vanilla-extract | 빌드 타임 + 타입 안전하지만 러닝 커브 높음 |
+| 방식              | 탈락 이유                                                           |
+| ----------------- | ------------------------------------------------------------------- |
+| Panda CSS         | 타입 안전하고 매력적이지만 Tailwind 생태계 친숙도, 아직 성숙도 부족 |
+| styled-components | 런타임 스타일 주입, RSC 비호환                                      |
+| CSS Modules       | 네이밍 충돌 없지만 컴포넌트 간 스타일 공유 번거로움                 |
+| vanilla-extract   | 빌드 타임 + 타입 안전하지만 러닝 커브 높음                          |
 
 ---
 
@@ -180,14 +180,14 @@ config (leaf)
 
 ## 기술 스택 요약
 
-| 영역 | 선택 | 버전 |
-|---|---|---|
-| 패키지 매니저 | pnpm | 9.x |
-| 빌드 오케스트레이션 | Turborepo | 2.x |
-| 프레임워크 | Next.js (App Router) | 15.x |
-| UI 라이브러리 | React | 19.x |
-| 서버 | Express + ws | 4.x / 8.x |
-| 스타일 | Tailwind CSS | 4.x |
-| 언어 | TypeScript (strict) | 5.x |
-| UI 문서 | Storybook | 8.x |
-| 런타임 | Node.js | ≥ 20 |
+| 영역                | 선택                 | 버전      |
+| ------------------- | -------------------- | --------- |
+| 패키지 매니저       | pnpm                 | 9.x       |
+| 빌드 오케스트레이션 | Turborepo            | 2.x       |
+| 프레임워크          | Next.js (App Router) | 15.x      |
+| UI 라이브러리       | React                | 19.x      |
+| 서버                | Express + ws         | 4.x / 8.x |
+| 스타일              | Tailwind CSS         | 4.x       |
+| 언어                | TypeScript (strict)  | 5.x       |
+| UI 문서             | Storybook            | 8.x       |
+| 런타임              | Node.js              | ≥ 20      |

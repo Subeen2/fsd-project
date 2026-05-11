@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +23,9 @@ export default function RootLayout({
             <span className="text-xl font-bold text-blue-600">FSD Project</span>
           </nav>
         </header>
-        <main className="max-w-5xl mx-auto px-6 py-8">{children}</main>
+        <main className="max-w-5xl mx-auto px-6 py-8">
+          <Providers>{children}</Providers>
+        </main>
       </body>
     </html>
   );
