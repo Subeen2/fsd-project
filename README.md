@@ -166,6 +166,51 @@ config (leaf)
 
 ---
 
+### 왜 Zustand?
+
+**결정**: 클라이언트 전역 상태(UI 상태, 인증 정보)를 Zustand로 관리. `@fsd/features`에 위치.
+
+**이유**:
+
+- 보일러플레이트가 없다. 스토어 하나가 `create()` 호출 하나다. Redux처럼 액션·리듀서·셀렉터를 별도로 선언하지 않는다.
+- 구독 단위가 세밀하다. `useUiStore((s) => s.sidebarOpen)`처럼 슬라이스 단위로 구독하면 해당 값이 바뀔 때만 리렌더링된다.
+- RSC 경계 안에서 `'use client'`를 붙인 컴포넌트에서만 쓴다. 서버 컴포넌트가 스토어에 의존하지 않는 구조가 자연스럽게 유지된다.
+- `@fsd/features`에 두면 여러 앱이 같은 스토어 로직을 공유할 수 있다. web 전용 상태가 아닌 비즈니스 상태(인증 등)는 여기서 관리한다.
+
+**대안 검토**:
+
+| 방식         | 탈락 이유                                                 |
+| ------------ | --------------------------------------------------------- |
+| Redux Toolkit | 이 규모에서 과하다. 액션 타입·슬라이스·셀렉터 분리 비용  |
+| Jotai        | atom 단위 관리는 유연하지만 스토어 전체 구조 파악이 어려움 |
+| Context API  | 리렌더링 제어가 어렵다. 큰 상태 트리에서 성능 문제 발생  |
+| Valtio       | Proxy 기반 변이 모델이 직관적이나 팀 친숙도 낮음          |
+
+---
+
+### 왜 React Query (TanStack Query)?
+
+**결정**: 서버 상태(API 데이터)는 React Query로 관리. `apps/web/hooks`에 위치.
+
+**이유**:
+
+- 서버 상태와 클라이언트 상태를 분리한다. "서버에서 가져온 데이터"는 본질적으로 캐시이고, 만료·재검증·중복 제거 등의 생명주기가 있다. Zustand에 fetch 결과를 담으면 이 로직을 직접 구현해야 한다.
+- `staleTime`, `retry`, `invalidateQueries` 세 가지만 알면 80% 케이스가 해결된다. `useEffect + useState + fetch` 패턴 대비 코드가 절반으로 줄어든다.
+- Mutation 후 `invalidateQueries`로 관련 쿼리를 자동 재요청한다. 캐시 무효화 로직을 직접 관리할 필요가 없다.
+- Devtools가 브라우저에서 캐시 상태를 실시간으로 보여준다. 데이터 페칭 디버깅 비용이 크게 줄어든다.
+- RSC와 역할이 다르다. RSC는 초기 서버 렌더링 데이터 페칭, React Query는 클라이언트 측 인터랙션 후 동적 데이터 페칭을 담당한다. 두 가지는 충돌하지 않고 보완 관계다.
+
+**대안 검토**:
+
+| 방식         | 탈락 이유                                                         |
+| ------------ | ----------------------------------------------------------------- |
+| SWR          | 기능셋이 좁다. Mutation, 의존 쿼리, Devtools가 약함               |
+| Apollo Client | GraphQL 전용. REST 서버와 쓰기엔 오버킬                          |
+| Zustand에 통합 | 캐시 만료·재검증·중복 요청 방지를 직접 구현해야 함              |
+| fetch + useEffect | 로딩·에러 상태, 경쟁 조건, 캐시 무효화를 매번 수동 처리   |
+
+---
+
 ### 왜 TypeScript strict?
 
 **결정**: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` 모두 활성화.
@@ -188,6 +233,8 @@ config (leaf)
 | UI 라이브러리       | React                | 19.x      |
 | 서버                | Express + ws         | 4.x / 8.x |
 | 스타일              | Tailwind CSS         | 4.x       |
+| 클라이언트 상태     | Zustand              | 5.x       |
+| 서버 상태           | TanStack Query       | 5.x       |
 | 언어                | TypeScript (strict)  | 5.x       |
 | UI 문서             | Storybook            | 8.x       |
 | 런타임              | Node.js              | ≥ 20      |
