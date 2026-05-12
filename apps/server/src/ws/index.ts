@@ -1,6 +1,10 @@
 import { WebSocketServer, type WebSocket } from "ws";
-import type { IncomingMessage } from "http";
-import type { WsEvent, WsConnectionEstablishedEvent, WsPongEvent } from "@fsd/api";
+import type { IncomingMessage, Server } from "http";
+import type {
+  WsEvent,
+  WsConnectionEstablishedEvent,
+  WsPongEvent,
+} from "@fsd/api";
 
 interface ExtendedWebSocket extends WebSocket {
   sessionId: string;
@@ -11,7 +15,7 @@ interface ExtendedWebSocket extends WebSocket {
  * Creates and attaches a WebSocket server to the given HTTP server.
  * Returns the wss instance for external use (broadcasting, etc.).
  */
-export function createWsServer(httpServer: import("http").Server): WebSocketServer {
+export function createWsServer(httpServer: Server): WebSocketServer {
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
 
   // Heartbeat interval — drop stale connections every 30 seconds
