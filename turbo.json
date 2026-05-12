@@ -10,7 +10,7 @@
         "!.next/cache/**",
         "dist/**",
         "storybook-static/**",
-        "src/styled-system/**"
+        "styled-system/**"
       ]
     },
     "dev": {
