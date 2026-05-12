@@ -33,6 +33,9 @@ root
 # 의존성 설치
 pnpm install
 
+# Panda CSS 코드 생성 (최초 1회 또는 panda.config.ts 변경 시)
+pnpm --filter @fsd/ui panda
+
 # 전체 개발 서버 (web + server + storybook 동시 실행)
 pnpm dev
 
