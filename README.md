@@ -45,6 +45,20 @@ pnpm --filter @fsd/storybook dev
 pnpm build
 pnpm typecheck
 pnpm lint
+
+# 전체 테스트 (turbo 병렬 실행)
+pnpm test
+
+# 특정 패키지만
+pnpm --filter @fsd/shared test
+pnpm --filter @fsd/features test
+pnpm --filter @fsd/ui test
+
+# watch 모드 (파일 변경 감지)
+pnpm --filter @fsd/ui test:watch
+
+# 커버리지 리포트
+pnpm --filter @fsd/ui test:coverage
 ```
 
 | 앱        | 주소                   |
@@ -220,6 +234,40 @@ config (leaf)
 
 ---
 
+### 왜 Vitest?
+
+**결정**: 단위테스트 러너로 Vitest 채택. 패키지별 환경 분리.
+
+- `@fsd/shared` → node 환경 (순수 유틸 함수)
+- `@fsd/features` → jsdom + React (Zustand 스토어, 훅)
+- `@fsd/ui` → jsdom + React (컴포넌트 렌더링·인터랙션)
+
+**이유**:
+
+- Next.js 15 + TypeScript 조합에서 Jest는 설정이 복잡하다. Vite 기반인 Vitest는 거의 제로 설정으로 동일한 API를 제공한다.
+- Jest 호환 API(`describe`, `it`, `expect`, `vi`)를 그대로 쓰므로 나중에 Jest로 전환하거나 혼용해도 마이그레이션 비용이 없다.
+- Turbopack과 별개로 동작하기 때문에 Next.js 빌드 파이프라인에 영향을 주지 않는다.
+- `@testing-library/react`와 조합하면 사용자 관점의 렌더링·인터랙션 테스트가 가능하다. Storybook이 시각적 확인을 담당한다면, Vitest는 동작 검증을 담당한다.
+
+**Storybook과의 역할 분리**:
+
+| 역할                    | Storybook | Vitest       |
+| ----------------------- | --------- | ------------ |
+| 시각적 확인             | ✅        | ❌           |
+| 자동화된 assertion      | ❌        | ✅           |
+| CI 회귀 감지            | 별도 설정 | ✅ 기본 지원 |
+| 비즈니스 로직·훅 테스트 | ❌        | ✅           |
+
+**대안 검토**:
+
+| 방식       | 탈락 이유                                             |
+| ---------- | ----------------------------------------------------- |
+| Jest       | Next.js 15 + Turbopack 조합에서 설정 복잡, 속도 느림  |
+| Cypress    | E2E 도구. 단위테스트 목적으로는 무겁고 실행 속도 느림 |
+| Playwright | 마찬가지로 E2E 전용. 브라우저 실행 비용 큼            |
+
+---
+
 ### 왜 TypeScript strict?
 
 **결정**: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` 모두 활성화.
@@ -246,5 +294,6 @@ config (leaf)
 | 클라이언트 상태     | Zustand              | 5.x       |
 | 서버 상태           | TanStack Query       | 5.x       |
 | 언어                | TypeScript (strict)  | 5.x       |
+| 단위테스트          | Vitest               | 4.x       |
 | UI 문서             | Storybook            | 8.x       |
 | 런타임              | Node.js              | ≥ 20      |
