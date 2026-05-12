@@ -16,6 +16,7 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.4",
     "@fsd/config": "workspace:*",
+    "@pandacss/dev": "^1.11.1",
     "@storybook/addon-essentials": "^8.6.18",
     "@storybook/addon-interactions": "^8.6.18",
     "@storybook/addon-links": "^8.6.18",
