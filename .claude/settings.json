@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "F=$(jq -r '.tool_input.file_path // empty'); source ~/.nvm/nvm.sh 2>/dev/null; nvm use 20 --silent 2>/dev/null; [ -n \"$F\" ] && pnpm exec prettier --write \"$F\" --ignore-unknown 2>/dev/null || true",
+            "statusMessage": "Formatting..."
+          },
+          {
+            "type": "command",
+            "command": "F=$(jq -r '.tool_input.file_path // empty'); source ~/.nvm/nvm.sh 2>/dev/null; nvm use 20 --silent 2>/dev/null; [ -z \"$F\" ] && exit 0; REL=\"${F#$PWD/}\"; PKG_DIR=$(echo \"$REL\" | grep -oE '^(apps|packages)/[^/]+' 2>/dev/null || true); [ -z \"$PKG_DIR\" ] && exit 0; PKG=$(jq -r '.name' \"$PKG_DIR/package.json\" 2>/dev/null); [ -z \"$PKG\" ] && exit 0; pnpm --filter \"$PKG\" typecheck 2>/dev/null || true",
+            "statusMessage": "Type checking...",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "source ~/.nvm/nvm.sh 2>/dev/null; nvm use 20 --silent 2>/dev/null; pnpm lint > /tmp/fsd-lint.log 2>&1; EXIT=$?; if [ $EXIT -ne 0 ]; then cat /tmp/fsd-lint.log; printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Lint 실패 — 에러 수정 후 다시 커밋하세요. 로그: /tmp/fsd-lint.log\"}}'; fi",
+            "statusMessage": "Linting before commit..."
+          }
+        ]
+      }
+    ]
+  }
+}

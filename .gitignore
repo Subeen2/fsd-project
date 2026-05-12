@@ -53,3 +53,6 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
+
+# Claude Code (personal settings)
+.claude/settings.local.json
