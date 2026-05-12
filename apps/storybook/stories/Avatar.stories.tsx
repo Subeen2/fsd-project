@@ -52,6 +52,31 @@ export const AllSizes: Story = {
   ),
 };
 
+export const ImageError: Story = {
+  name: "Image Error → Fallback",
+  render: () => (
+    <div className="flex items-end gap-4">
+      <div className="flex flex-col items-center gap-1">
+        <Avatar
+          src="https://broken.url/image.png"
+          fallback="Jane Doe"
+          alt="Jane Doe"
+          size="md"
+        />
+        <span className="text-xs text-gray-400">with fallback</span>
+      </div>
+      <div className="flex flex-col items-center gap-1">
+        <Avatar
+          src="https://broken.url/image.png"
+          alt="No fallback"
+          size="md"
+        />
+        <span className="text-xs text-gray-400">no fallback</span>
+      </div>
+    </div>
+  ),
+};
+
 export const AvatarGroup: Story = {
   render: () => (
     <div className="flex -space-x-2">
