@@ -35,7 +35,9 @@ export const WithSections: Story = {
       </CardBody>
       <CardFooter>
         <div className="flex justify-end gap-2">
-          <Button variant="ghost" size="sm">Cancel</Button>
+          <Button variant="ghost" size="sm">
+            Cancel
+          </Button>
           <Button size="sm">Save</Button>
         </div>
       </CardFooter>
@@ -55,7 +57,9 @@ export const ProfileCard: Story = {
             <p className="font-semibold text-gray-900">Jane Doe</p>
             <p className="text-xs text-gray-500">@janedoe</p>
           </div>
-          <Badge variant="success" dot className="ml-auto">Online</Badge>
+          <Badge variant="success" dot className="ml-auto">
+            Online
+          </Badge>
         </div>
       </CardHeader>
       <CardBody>
@@ -64,7 +68,9 @@ export const ProfileCard: Story = {
         </p>
       </CardBody>
       <CardFooter>
-        <Button variant="secondary" size="sm" className="w-full">View Profile</Button>
+        <Button variant="secondary" size="sm" className="w-full">
+          View Profile
+        </Button>
       </CardFooter>
     </Card>
   ),
@@ -73,7 +79,9 @@ export const ProfileCard: Story = {
 export const Clickable: Story = {
   render: () => (
     <Card onClick={() => alert("Card clicked!")} className="w-64">
-      <p className="text-sm text-gray-700">Click me — I'm interactive.</p>
+      <p className="text-sm text-gray-700">
+        Click me &mdash; I&apos;m interactive.
+      </p>
     </Card>
   ),
 };

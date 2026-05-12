@@ -80,22 +80,26 @@ const mockPosts: Post[] = [
 export default function HomePage() {
   return (
     <div className="space-y-14">
-
       {/* Hero */}
       <section className="space-y-5">
         <div className="flex items-center gap-2">
-          <Badge variant="info" dot>v0.0.1</Badge>
+          <Badge variant="info" dot>
+            v0.0.1
+          </Badge>
           <Badge variant="success">Monorepo Ready</Badge>
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">
           FSD Project
         </h1>
         <p className="text-lg text-gray-500 max-w-xl">
-          A production-ready monorepo with Next.js 15, Express + WebSocket, and a shared design system.
+          A production-ready monorepo with Next.js 15, Express + WebSocket, and
+          a shared design system.
         </p>
         <div className="flex gap-3">
           <Button size="lg">Get Started</Button>
-          <Button variant="secondary" size="lg">View Docs</Button>
+          <Button variant="secondary" size="lg">
+            View Docs
+          </Button>
         </div>
       </section>
 
@@ -106,8 +110,18 @@ export default function HomePage() {
           <Input
             placeholder="Search by title..."
             leftIcon={
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                />
               </svg>
             }
           />
@@ -131,7 +145,9 @@ export default function HomePage() {
                 </div>
               </CardHeader>
               <CardBody>
-                <p className="text-sm text-gray-500 line-clamp-3">{post.content}</p>
+                <p className="text-sm text-gray-500 line-clamp-3">
+                  {post.content}
+                </p>
               </CardBody>
               <CardFooter>
                 <div className="flex items-center justify-between">
@@ -143,11 +159,17 @@ export default function HomePage() {
                       size="sm"
                     />
                     <div>
-                      <p className="text-xs font-medium text-gray-700">{post.author.displayName}</p>
-                      <time className="text-xs text-gray-400">{formatDate(post.createdAt)}</time>
+                      <p className="text-xs font-medium text-gray-700">
+                        {post.author.displayName}
+                      </p>
+                      <time className="text-xs text-gray-400">
+                        {formatDate(post.createdAt)}
+                      </time>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm">Read →</Button>
+                  <Button variant="ghost" size="sm">
+                    Read →
+                  </Button>
                 </div>
               </CardFooter>
             </Card>
@@ -169,17 +191,22 @@ export default function HomePage() {
                   size="md"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">{user.displayName}</p>
+                  <p className="font-medium text-gray-900">
+                    {user.displayName}
+                  </p>
                   <p className="text-sm text-gray-400">@{user.username}</p>
                 </div>
-                <Badge variant="success" dot>Online</Badge>
-                <Button variant="secondary" size="sm">Follow</Button>
+                <Badge variant="success" dot>
+                  Online
+                </Badge>
+                <Button variant="secondary" size="sm">
+                  Follow
+                </Button>
               </div>
             </Card>
           ))}
         </div>
       </section>
-
     </div>
   );
 }

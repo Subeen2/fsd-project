@@ -13,20 +13,47 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 disabled:bg-blue-300",
-  secondary:
-    "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400 disabled:bg-gray-50 disabled:text-gray-400",
-  ghost:
-    "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400 disabled:text-gray-300",
-  danger:
-    "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 disabled:bg-red-300",
+  primary: [
+    "rounded-full",
+    "bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 text-white",
+    "shadow-md shadow-indigo-500/30",
+    "hover:shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-0.5 hover:brightness-110",
+    "active:translate-y-0 active:shadow-md active:brightness-100",
+    "focus:ring-indigo-500",
+    "disabled:from-slate-300 disabled:via-slate-300 disabled:to-slate-300 disabled:shadow-none",
+  ].join(" "),
+  secondary: [
+    "rounded-xl",
+    "bg-white border-2 border-slate-200 text-slate-700",
+    "shadow-sm",
+    "hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-700 hover:shadow-md hover:-translate-y-0.5",
+    "active:translate-y-0 active:bg-indigo-50 active:shadow-sm",
+    "focus:ring-indigo-300",
+    "disabled:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:shadow-none",
+  ].join(" "),
+  ghost: [
+    "rounded-lg",
+    "bg-transparent text-slate-600",
+    "hover:bg-slate-100 hover:text-slate-900",
+    "active:bg-slate-200",
+    "focus:ring-slate-400",
+    "disabled:text-slate-300",
+  ].join(" "),
+  danger: [
+    "rounded-xl",
+    "bg-rose-500 text-white",
+    "shadow-md shadow-rose-500/25",
+    "hover:bg-rose-600 hover:shadow-lg hover:shadow-rose-500/40 hover:-translate-y-0.5",
+    "active:translate-y-0 active:bg-rose-700 active:shadow-md",
+    "focus:ring-rose-500",
+    "disabled:bg-rose-300 disabled:shadow-none",
+  ].join(" "),
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-sm font-medium gap-1.5",
-  md: "px-4 py-2 text-base font-medium gap-2",
-  lg: "px-6 py-3 text-lg font-semibold gap-2.5",
+  sm: "px-4 py-1.5 text-xs font-semibold tracking-wide gap-1.5",
+  md: "px-5 py-2.5 text-sm font-semibold tracking-wide gap-2",
+  lg: "px-8 py-3.5 text-base font-bold tracking-wide gap-2.5",
 };
 
 export function Button({
@@ -48,13 +75,13 @@ export function Button({
       disabled={isDisabled}
       aria-busy={loading}
       className={cn(
-        "inline-flex items-center justify-center rounded-md",
-        "transition-colors duration-150",
+        "inline-flex items-center justify-center select-none",
+        "transition-all duration-200 ease-out",
         "focus:outline-none focus:ring-2 focus:ring-offset-2",
-        "disabled:cursor-not-allowed",
+        "disabled:cursor-not-allowed disabled:opacity-60",
         variantClasses[variant],
         sizeClasses[size],
-        className
+        className,
       )}
     >
       {loading ? (
