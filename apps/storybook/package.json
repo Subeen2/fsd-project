@@ -25,12 +25,10 @@
     "@storybook/react": "^8.6.18",
     "@storybook/react-vite": "^8.6.18",
     "@storybook/test": "^8.6.18",
-    "@tailwindcss/vite": "^4.3.0",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
     "eslint": "^8.57.1",
     "storybook": "^8.6.18",
-    "tailwindcss": "^4.3.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.5"
   }

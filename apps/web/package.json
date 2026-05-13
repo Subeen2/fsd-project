@@ -4,24 +4,24 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "panda codegen && next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "panda": "panda codegen"
   },
   "dependencies": {
     "@fsd/api": "workspace:*",
     "@fsd/features": "workspace:*",
     "@fsd/shared": "workspace:*",
     "@fsd/ui": "workspace:*",
-    "@tailwindcss/postcss": "^4.3.0",
+    "@pandacss/dev": "^1.11.1",
     "@tanstack/react-query": "^5.100.9",
     "@tanstack/react-query-devtools": "^5.100.9",
     "next": "^15.1.3",
     "postcss": "^8.5.14",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^4.3.0"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@fsd/config": "workspace:*",

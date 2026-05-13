@@ -1,6 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import { join, dirname } from "path";
-import tailwindcss from "@tailwindcss/vite";
 import pandacss from "@pandacss/dev/postcss";
 
 function getAbsolutePath(value: string): string {
@@ -25,7 +24,6 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     config.plugins = [
       ...(config.plugins ?? []),
-      tailwindcss(),
       {
         name: "strip-use-client",
         transform(code: string, id: string) {

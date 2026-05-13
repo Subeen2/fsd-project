@@ -1,7 +1,44 @@
 "use client";
 
 import React from "react";
-import { cn } from "@fsd/shared";
+import { sva } from "../../../styled-system/css";
+
+const avatarSlots = sva({
+  slots: ["root", "image", "icon"],
+  base: {
+    root: {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "full",
+      overflow: "hidden",
+      bg: "gray.200",
+      color: "gray.600",
+      fontWeight: "medium",
+      userSelect: "none",
+    },
+    image: {
+      h: "full",
+      w: "full",
+      objectFit: "cover",
+    },
+    icon: {
+      h: "[60%]",
+      w: "[60%]",
+      color: "gray.400",
+    },
+  },
+  variants: {
+    size: {
+      xs: { root: { h: "6", w: "6", fontSize: "xs" } },
+      sm: { root: { h: "8", w: "8", fontSize: "sm" } },
+      md: { root: { h: "10", w: "10", fontSize: "md" } },
+      lg: { root: { h: "12", w: "12", fontSize: "lg" } },
+      xl: { root: { h: "16", w: "16", fontSize: "xl" } },
+    },
+  },
+  defaultVariants: { size: "md" },
+});
 
 export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -12,14 +49,6 @@ export interface AvatarProps {
   size?: AvatarSize;
   className?: string;
 }
-
-const sizeClasses: Record<AvatarSize, string> = {
-  xs: "h-6 w-6 text-xs",
-  sm: "h-8 w-8 text-sm",
-  md: "h-10 w-10 text-base",
-  lg: "h-12 w-12 text-lg",
-  xl: "h-16 w-16 text-xl",
-};
 
 function getInitials(fallback: string): string {
   return fallback
@@ -39,28 +68,22 @@ export function Avatar({
 }: AvatarProps) {
   const [imgError, setImgError] = React.useState(false);
   const showImage = src && !imgError;
+  const slots = avatarSlots({ size });
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center justify-center rounded-full overflow-hidden",
-        "bg-gray-200 text-gray-600 font-medium select-none",
-        sizeClasses[size],
-        className
-      )}
-    >
+    <span className={slots.root + (className ? ` ${className}` : "")}>
       {showImage ? (
         <img
           src={src}
           alt={alt}
-          className="h-full w-full object-cover"
+          className={slots.image}
           onError={() => setImgError(true)}
         />
       ) : fallback ? (
         <span aria-label={alt}>{getInitials(fallback)}</span>
       ) : (
         <svg
-          className="h-3/5 w-3/5 text-gray-400"
+          className={slots.icon}
           fill="currentColor"
           viewBox="0 0 24 24"
           aria-hidden="true"

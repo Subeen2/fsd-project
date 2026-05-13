@@ -17,7 +17,7 @@ type Story = StoryObj<typeof Card>;
 export const Default: Story = {
   render: () => (
     <Card>
-      <p className="text-gray-700">A simple card with default padding.</p>
+      <p style={{ color: "#374151" }}>A simple card with default padding.</p>
     </Card>
   ),
 };
@@ -26,15 +26,19 @@ export const WithSections: Story = {
   render: () => (
     <Card>
       <CardHeader>
-        <h3 className="text-base font-semibold text-gray-900">Card Title</h3>
+        <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "#111827" }}>
+          Card Title
+        </h3>
       </CardHeader>
       <CardBody>
-        <p className="text-sm text-gray-600">
+        <p style={{ fontSize: "0.875rem", color: "#4b5563" }}>
           This is the main content area of the card.
         </p>
       </CardBody>
       <CardFooter>
-        <div className="flex justify-end gap-2">
+        <div
+          style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}
+        >
           <Button variant="ghost" size="sm">
             Cancel
           </Button>
@@ -49,21 +53,34 @@ export const ProfileCard: Story = {
   render: () => (
     <Card className="w-72">
       <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
+            style={{
+              height: "40px",
+              width: "40px",
+              borderRadius: "50%",
+              backgroundColor: "#3b82f6",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontWeight: 600,
+              flexShrink: 0,
+            }}
+          >
             JD
           </div>
-          <div>
-            <p className="font-semibold text-gray-900">Jane Doe</p>
-            <p className="text-xs text-gray-500">@janedoe</p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 600, color: "#111827" }}>Jane Doe</p>
+            <p style={{ fontSize: "0.75rem", color: "#6b7280" }}>@janedoe</p>
           </div>
-          <Badge variant="success" dot className="ml-auto">
+          <Badge variant="success" dot>
             Online
           </Badge>
         </div>
       </CardHeader>
       <CardBody>
-        <p className="text-sm text-gray-600">
+        <p style={{ fontSize: "0.875rem", color: "#4b5563" }}>
           Frontend developer passionate about design systems and accessibility.
         </p>
       </CardBody>
@@ -79,7 +96,7 @@ export const ProfileCard: Story = {
 export const Clickable: Story = {
   render: () => (
     <Card onClick={() => alert("Card clicked!")} className="w-64">
-      <p className="text-sm text-gray-700">
+      <p style={{ fontSize: "0.875rem", color: "#374151" }}>
         Click me &mdash; I&apos;m interactive.
       </p>
     </Card>
@@ -88,15 +105,15 @@ export const Clickable: Story = {
 
 export const Shadows: Story = {
   render: () => (
-    <div className="flex gap-4">
+    <div style={{ display: "flex", gap: "16px" }}>
       <Card shadow="none" className="flex-1">
-        <p className="text-sm text-gray-600">No shadow</p>
+        <p style={{ fontSize: "0.875rem", color: "#4b5563" }}>No shadow</p>
       </Card>
       <Card shadow="sm" className="flex-1">
-        <p className="text-sm text-gray-600">Shadow sm</p>
+        <p style={{ fontSize: "0.875rem", color: "#4b5563" }}>Shadow sm</p>
       </Card>
       <Card shadow="md" className="flex-1">
-        <p className="text-sm text-gray-600">Shadow md</p>
+        <p style={{ fontSize: "0.875rem", color: "#4b5563" }}>Shadow md</p>
       </Card>
     </div>
   ),

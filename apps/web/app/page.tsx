@@ -10,6 +10,7 @@ import {
 } from "@fsd/ui";
 import { formatDate } from "@fsd/shared";
 import type { Post, User } from "@fsd/api";
+import { css } from "../styled-system/css";
 
 const mockUsers: User[] = [
   {
@@ -57,7 +58,7 @@ const mockPosts: Post[] = [
     id: "post_02",
     title: "Building a design system with React",
     content:
-      "A step-by-step guide to creating reusable, accessible UI components with TypeScript and Tailwind CSS.",
+      "A step-by-step guide to creating reusable, accessible UI components with TypeScript and Panda CSS.",
     authorId: "user_02",
     author: mockUsers[1]!,
     published: true,
@@ -79,23 +80,34 @@ const mockPosts: Post[] = [
 
 export default function HomePage() {
   return (
-    <div className="space-y-14">
+    <div className={css({ display: "flex", flexDir: "column", gap: "14" })}>
       {/* Hero */}
-      <section className="space-y-5">
-        <div className="flex items-center gap-2">
+      <section
+        className={css({ display: "flex", flexDir: "column", gap: "5" })}
+      >
+        <div
+          className={css({ display: "flex", alignItems: "center", gap: "2" })}
+        >
           <Badge variant="info" dot>
             v0.0.1
           </Badge>
           <Badge variant="success">Monorepo Ready</Badge>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+        <h1
+          className={css({
+            fontSize: "4xl",
+            fontWeight: "bold",
+            letterSpacing: "tight",
+            color: "gray.900",
+          })}
+        >
           FSD Project
         </h1>
-        <p className="text-lg text-gray-500 max-w-xl">
+        <p className={css({ fontSize: "lg", color: "gray.500", maxW: "xl" })}>
           A production-ready monorepo with Next.js 15, Express + WebSocket, and
           a shared design system.
         </p>
-        <div className="flex gap-3">
+        <div className={css({ display: "flex", gap: "3" })}>
           <Button size="lg">Get Started</Button>
           <Button variant="secondary" size="lg">
             View Docs
@@ -104,14 +116,24 @@ export default function HomePage() {
       </section>
 
       {/* Search */}
-      <section className="space-y-3">
-        <h2 className="text-xl font-semibold text-gray-900">Search Posts</h2>
-        <div className="max-w-sm">
+      <section
+        className={css({ display: "flex", flexDir: "column", gap: "3" })}
+      >
+        <h2
+          className={css({
+            fontSize: "xl",
+            fontWeight: "semibold",
+            color: "gray.900",
+          })}
+        >
+          Search Posts
+        </h2>
+        <div className={css({ maxW: "sm" })}>
           <Input
             placeholder="Search by title..."
             leftIcon={
               <svg
-                className="h-4 w-4"
+                style={{ height: "16px", width: "16px" }}
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={2}
@@ -129,14 +151,48 @@ export default function HomePage() {
       </section>
 
       {/* Posts */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Recent Posts</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section
+        className={css({ display: "flex", flexDir: "column", gap: "4" })}
+      >
+        <h2
+          className={css({
+            fontSize: "xl",
+            fontWeight: "semibold",
+            color: "gray.900",
+          })}
+        >
+          Recent Posts
+        </h2>
+        <div
+          className={css({
+            display: "grid",
+            gap: "4",
+            gridTemplateColumns: {
+              base: "1fr",
+              sm: "repeat(2, minmax(0, 1fr))",
+              lg: "repeat(3, minmax(0, 1fr))",
+            },
+          })}
+        >
           {mockPosts.map((post) => (
             <Card key={post.id} shadow="sm">
               <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-semibold text-gray-900 leading-snug">
+                <div
+                  className={css({
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    gap: "2",
+                  })}
+                >
+                  <h3
+                    className={css({
+                      fontSize: "md",
+                      fontWeight: "semibold",
+                      color: "gray.900",
+                      lineHeight: "snug",
+                    })}
+                  >
                     {post.title}
                   </h3>
                   <Badge variant={post.published ? "success" : "warning"}>
@@ -145,13 +201,33 @@ export default function HomePage() {
                 </div>
               </CardHeader>
               <CardBody>
-                <p className="text-sm text-gray-500 line-clamp-3">
+                <p
+                  className={css({ fontSize: "sm", color: "gray.500" })}
+                  style={{
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 3,
+                  }}
+                >
                   {post.content}
                 </p>
               </CardBody>
               <CardFooter>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div
+                  className={css({
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  })}
+                >
+                  <div
+                    className={css({
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "2",
+                    })}
+                  >
                     <Avatar
                       src={post.author.avatarUrl}
                       fallback={post.author.displayName}
@@ -159,10 +235,18 @@ export default function HomePage() {
                       size="sm"
                     />
                     <div>
-                      <p className="text-xs font-medium text-gray-700">
+                      <p
+                        className={css({
+                          fontSize: "xs",
+                          fontWeight: "medium",
+                          color: "gray.700",
+                        })}
+                      >
                         {post.author.displayName}
                       </p>
-                      <time className="text-xs text-gray-400">
+                      <time
+                        className={css({ fontSize: "xs", color: "gray.400" })}
+                      >
                         {formatDate(post.createdAt)}
                       </time>
                     </div>
@@ -178,23 +262,43 @@ export default function HomePage() {
       </section>
 
       {/* Team */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Team</h2>
-        <div className="flex flex-col gap-3">
+      <section
+        className={css({ display: "flex", flexDir: "column", gap: "4" })}
+      >
+        <h2
+          className={css({
+            fontSize: "xl",
+            fontWeight: "semibold",
+            color: "gray.900",
+          })}
+        >
+          Team
+        </h2>
+        <div className={css({ display: "flex", flexDir: "column", gap: "3" })}>
           {mockUsers.map((user) => (
             <Card key={user.id} padding="sm" shadow="none">
-              <div className="flex items-center gap-4">
+              <div
+                className={css({
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4",
+                })}
+              >
                 <Avatar
                   src={user.avatarUrl}
                   fallback={user.displayName}
                   alt={user.displayName}
                   size="md"
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900">
+                <div className={css({ flex: "1", minW: "0" })}>
+                  <p
+                    className={css({ fontWeight: "medium", color: "gray.900" })}
+                  >
                     {user.displayName}
                   </p>
-                  <p className="text-sm text-gray-400">@{user.username}</p>
+                  <p className={css({ fontSize: "sm", color: "gray.400" })}>
+                    @{user.username}
+                  </p>
                 </div>
                 <Badge variant="success" dot>
                   Online

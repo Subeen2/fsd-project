@@ -55,7 +55,7 @@ export const WithIcons: Story = {
     placeholder: "Search...",
     leftIcon: (
       <svg
-        className="h-4 w-4"
+        style={{ height: "16px", width: "16px" }}
         fill="none"
         stroke="currentColor"
         strokeWidth={2}

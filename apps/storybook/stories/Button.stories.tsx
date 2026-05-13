@@ -145,7 +145,14 @@ const TrashIcon = () => (
 
 export const WithIcons: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-3 items-center">
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "12px",
+        alignItems: "center",
+      }}
+    >
       <Button variant="primary" rightIcon={<ArrowRight />}>
         Get Started
       </Button>
@@ -165,7 +172,14 @@ export const WithIcons: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-3 items-center">
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "12px",
+        alignItems: "center",
+      }}
+    >
       <Button variant="primary">Primary</Button>
       <Button variant="secondary">Secondary</Button>
       <Button variant="ghost">Ghost</Button>
@@ -177,7 +191,7 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex gap-3 items-center">
+    <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
       <Button size="sm">Small</Button>
       <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
@@ -188,7 +202,14 @@ export const AllSizes: Story = {
 
 export const AllStates: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-3 items-center">
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "12px",
+        alignItems: "center",
+      }}
+    >
       <Button variant="primary">Default</Button>
       <Button variant="primary" loading>
         Loading
@@ -203,12 +224,31 @@ export const AllStates: Story = {
 
 export const Showcase: Story = {
   render: () => (
-    <div className="p-8 bg-gray-50 rounded-2xl space-y-6 min-w-[480px]">
+    <div
+      style={{
+        padding: "32px",
+        backgroundColor: "#f9fafb",
+        borderRadius: "16px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px",
+        minWidth: "480px",
+      }}
+    >
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#9ca3af",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            marginBottom: "12px",
+          }}
+        >
           Variants
         </p>
-        <div className="flex flex-wrap gap-3">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
           <Button variant="primary">Primary</Button>
           <Button variant="secondary">Secondary</Button>
           <Button variant="ghost">Ghost</Button>
@@ -216,20 +256,45 @@ export const Showcase: Story = {
         </div>
       </div>
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#9ca3af",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            marginBottom: "12px",
+          }}
+        >
           Sizes
         </p>
-        <div className="flex flex-wrap gap-3 items-center">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "12px",
+            alignItems: "center",
+          }}
+        >
           <Button size="sm">Small</Button>
           <Button size="md">Medium</Button>
           <Button size="lg">Large</Button>
         </div>
       </div>
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#9ca3af",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            marginBottom: "12px",
+          }}
+        >
           With Icons
         </p>
-        <div className="flex flex-wrap gap-3">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
           <Button variant="primary" rightIcon={<ArrowRight />}>
             Get Started
           </Button>
@@ -242,10 +307,19 @@ export const Showcase: Story = {
         </div>
       </div>
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#9ca3af",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            marginBottom: "12px",
+          }}
+        >
           States
         </p>
-        <div className="flex flex-wrap gap-3">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
           <Button variant="primary" loading>
             Saving...
           </Button>
