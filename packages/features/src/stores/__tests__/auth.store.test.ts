@@ -10,12 +10,13 @@ const mockUser = {
 
 describe("useAuthStore", () => {
   beforeEach(() => {
-    useAuthStore.setState({ user: null, isAuthenticated: false });
+    useAuthStore.setState({ user: null, token: null, isAuthenticated: false });
   });
 
   it("initializes with no user", () => {
-    const { user, isAuthenticated } = useAuthStore.getState();
+    const { user, token, isAuthenticated } = useAuthStore.getState();
     expect(user).toBeNull();
+    expect(token).toBeNull();
     expect(isAuthenticated).toBe(false);
   });
 
@@ -27,12 +28,22 @@ describe("useAuthStore", () => {
     expect(isAuthenticated).toBe(true);
   });
 
-  it("clears user and marks as unauthenticated on logout", () => {
-    useAuthStore.getState().setUser(mockUser);
+  it("sets user with token", () => {
+    useAuthStore.getState().setUser(mockUser, "test-token");
+
+    const { user, token, isAuthenticated } = useAuthStore.getState();
+    expect(user).toEqual(mockUser);
+    expect(token).toBe("test-token");
+    expect(isAuthenticated).toBe(true);
+  });
+
+  it("clears user and token on logout", () => {
+    useAuthStore.getState().setUser(mockUser, "test-token");
     useAuthStore.getState().logout();
 
-    const { user, isAuthenticated } = useAuthStore.getState();
+    const { user, token, isAuthenticated } = useAuthStore.getState();
     expect(user).toBeNull();
+    expect(token).toBeNull();
     expect(isAuthenticated).toBe(false);
   });
 
