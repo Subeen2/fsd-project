@@ -140,31 +140,26 @@ pnpm --filter @fsd/ui test:coverage
 
 ---
 
-### 왜 Tailwind CSS 4 + Panda CSS SVA?
+### 왜 Panda CSS?
 
-**결정**: 두 도구를 역할에 따라 분리해서 공존.
+**결정**: 앱·컴포넌트 스타일 전체를 Panda CSS로 통일.
 
-- `apps/web` 페이지 레이아웃·유틸리티 스타일 → **Tailwind CSS 4**
-- `packages/ui` 컴포넌트 레시피 → **Panda CSS SVA**
+- `apps/web` 페이지 레이아웃·유틸리티 스타일 → **`css()` 유틸리티**
+- `packages/ui` 컴포넌트 레시피 → **`sva()` (Slot Variance Authority)**
 
-**Tailwind CSS 4를 선택한 이유**:
+**이유**:
 
-- CSS-in-JS 대비 빌드 타임 스타일 추출이므로 런타임 오버헤드가 없다.
-- `tailwind.config.js` 없이 CSS 파일 안 `@import "tailwindcss"`만으로 동작한다. 설정 파일 관리 부담이 줄었다.
-- `@source` 디렉티브로 `packages/ui/src`를 명시해 모노레포 패키지 클래스도 스캔된다.
-
-**Panda CSS SVA를 컴포넌트 레시피에 선택한 이유**:
-
-- `sva` (Slot Variance Authority)는 컴포넌트를 슬롯 단위(`root`, `leftIcon`, `rightIcon`, `spinner`, `label`)로 쪼개어 각 슬롯에 독립적인 variant 스타일을 부여한다. Tailwind 문자열 클래스 조합으로는 이 수준의 슬롯별 제어가 어렵다.
+- `sva`는 컴포넌트를 슬롯 단위(`root`, `leftIcon`, `rightIcon`, `spinner`, `label`)로 쪼개어 각 슬롯에 독립적인 variant 스타일을 부여한다. 유틸리티 클래스 문자열 조합으로는 이 수준의 슬롯별 제어가 어렵다.
 - variant 정의가 타입으로 추론된다. 잘못된 variant 값은 컴파일 타임에 잡힌다.
 - 컴포넌트 스타일이 하나의 `sva()` 선언 안에 집약된다. hover/active/disabled/focus 상태가 variant별로 분산되지 않아 가독성이 높다.
-- Panda CSS는 PostCSS 플러그인으로 동작해 Tailwind Vite 플러그인과 충돌 없이 공존한다.
+- PostCSS 플러그인으로 동작하므로 런타임 오버헤드가 없다. 빌드 타임에 CSS를 추출한다.
+- 도구를 하나로 통일함으로써 앱·패키지 경계를 넘나드는 스타일 일관성을 유지하기 쉬워진다.
 
 **대안 검토**:
 
 | 방식              | 탈락 이유                                           |
 | ----------------- | --------------------------------------------------- |
-| Tailwind만 사용   | 슬롯별 variant 스타일 분리가 어렵고 문자열이 길어짐 |
+| Tailwind CSS      | 슬롯별 variant 스타일 분리가 어렵고 문자열이 길어짐 |
 | styled-components | 런타임 스타일 주입, RSC 비호환                      |
 | CSS Modules       | 컴포넌트 간 스타일 공유 번거로움                    |
 | vanilla-extract   | 빌드 타임 + 타입 안전하지만 SVA 수준 레시피 없음    |
@@ -285,18 +280,17 @@ config (leaf)
 
 ## 기술 스택 요약
 
-| 영역                | 선택                 | 버전      |
-| ------------------- | -------------------- | --------- |
-| 패키지 매니저       | pnpm                 | 9.x       |
-| 빌드 오케스트레이션 | Turborepo            | 2.x       |
-| 프레임워크          | Next.js (App Router) | 15.x      |
-| UI 라이브러리       | React                | 19.x      |
-| 서버                | Express + ws         | 4.x / 8.x |
-| 스타일 (유틸리티)   | Tailwind CSS         | 4.x       |
-| 스타일 (컴포넌트)   | Panda CSS SVA        | 1.x       |
-| 클라이언트 상태     | Zustand              | 5.x       |
-| 서버 상태           | TanStack Query       | 5.x       |
-| 언어                | TypeScript (strict)  | 5.x       |
-| 단위테스트          | Vitest               | 4.x       |
-| UI 문서             | Storybook            | 8.x       |
-| 런타임              | Node.js              | ≥ 20      |
+| 영역                | 선택                  | 버전      |
+| ------------------- | --------------------- | --------- |
+| 패키지 매니저       | pnpm                  | 9.x       |
+| 빌드 오케스트레이션 | Turborepo             | 2.x       |
+| 프레임워크          | Next.js (App Router)  | 15.x      |
+| UI 라이브러리       | React                 | 19.x      |
+| 서버                | Express + ws          | 4.x / 8.x |
+| 스타일              | Panda CSS (css + SVA) | 1.x       |
+| 클라이언트 상태     | Zustand               | 5.x       |
+| 서버 상태           | TanStack Query        | 5.x       |
+| 언어                | TypeScript (strict)   | 5.x       |
+| 단위테스트          | Vitest                | 4.x       |
+| UI 문서             | Storybook             | 8.x       |
+| 런타임              | Node.js               | ≥ 20      |
