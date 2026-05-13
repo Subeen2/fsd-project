@@ -23,9 +23,9 @@
       "outputs": []
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": ["coverage/**"]
+      "outputs": []
     },
     "panda": {
       "outputs": ["styled-system/**"]

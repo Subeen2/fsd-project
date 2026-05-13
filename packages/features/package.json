@@ -12,6 +12,9 @@
     }
   },
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/ --ext .ts,.tsx"
   },
@@ -25,8 +28,15 @@
   },
   "devDependencies": {
     "@fsd/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.0.1",
+    "@vitejs/plugin-react": "^5.2.0",
+    "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^8.57.1",
-    "typescript": "^5.7.2"
+    "jsdom": "^29.1.1",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.6"
   }
 }
