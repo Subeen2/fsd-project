@@ -23,7 +23,18 @@ const config: StorybookConfig = {
     options: {},
   },
   viteFinal: async (config) => {
-    config.plugins = [...(config.plugins ?? []), tailwindcss()];
+    config.plugins = [
+      ...(config.plugins ?? []),
+      tailwindcss(),
+      {
+        name: "strip-use-client",
+        transform(code: string, id: string) {
+          if (/\.(tsx?|jsx?)$/.test(id)) {
+            return { code: code.replace(/^['"]use client['"];?\r?\n?/m, "") };
+          }
+        },
+      },
+    ];
     config.css = {
       postcss: {
         plugins: [pandacss()],
