@@ -10,6 +10,11 @@ out
 build
 storybook-static
 
+# Panda CSS generated files
+packages/ui/styled-system
+apps/web/styled-system
+apps/storybook/styled-system
+
 # Turbo
 .turbo
 

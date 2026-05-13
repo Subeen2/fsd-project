@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { css } from "../styled-system/css";
 
 export const metadata: Metadata = {
   title: {
@@ -18,12 +19,43 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header className="border-b border-gray-200 px-6 py-4">
-          <nav className="max-w-5xl mx-auto flex items-center justify-between">
-            <span className="text-xl font-bold text-blue-600">FSD Project</span>
+        <header
+          className={css({
+            borderBottomWidth: "1px",
+            borderStyle: "solid",
+            borderColor: "gray.200",
+            px: "6",
+            py: "4",
+          })}
+        >
+          <nav
+            className={css({
+              maxW: "5xl",
+              mx: "auto",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            })}
+          >
+            <span
+              className={css({
+                fontSize: "xl",
+                fontWeight: "bold",
+                color: "blue.600",
+              })}
+            >
+              FSD Project
+            </span>
           </nav>
         </header>
-        <main className="max-w-5xl mx-auto px-6 py-8">
+        <main
+          className={css({
+            maxW: "5xl",
+            mx: "auto",
+            px: "6",
+            py: "8",
+          })}
+        >
           <Providers>{children}</Providers>
         </main>
       </body>

@@ -42,7 +42,7 @@ export const NoSrc: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex items-end gap-3">
+    <div style={{ display: "flex", alignItems: "flex-end", gap: "12px" }}>
       <Avatar fallback="Jane Doe" size="xs" />
       <Avatar fallback="Jane Doe" size="sm" />
       <Avatar fallback="Jane Doe" size="md" />
@@ -55,23 +55,39 @@ export const AllSizes: Story = {
 export const ImageError: Story = {
   name: "Image Error → Fallback",
   render: () => (
-    <div className="flex items-end gap-4">
-      <div className="flex flex-col items-center gap-1">
+    <div style={{ display: "flex", alignItems: "flex-end", gap: "16px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "4px",
+        }}
+      >
         <Avatar
           src="https://broken.url/image.png"
           fallback="Jane Doe"
           alt="Jane Doe"
           size="md"
         />
-        <span className="text-xs text-gray-400">with fallback</span>
+        <span style={{ fontSize: "12px", color: "#9ca3af" }}>
+          with fallback
+        </span>
       </div>
-      <div className="flex flex-col items-center gap-1">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "4px",
+        }}
+      >
         <Avatar
           src="https://broken.url/image.png"
           alt="No fallback"
           size="md"
         />
-        <span className="text-xs text-gray-400">no fallback</span>
+        <span style={{ fontSize: "12px", color: "#9ca3af" }}>no fallback</span>
       </div>
     </div>
   ),
@@ -79,28 +95,43 @@ export const ImageError: Story = {
 
 export const AvatarGroup: Story = {
   render: () => (
-    <div className="flex -space-x-2">
-      <Avatar
-        src="https://i.pravatar.cc/150?img=1"
-        alt="User 1"
-        size="md"
-        className="ring-2 ring-white"
-      />
-      <Avatar
-        src="https://i.pravatar.cc/150?img=2"
-        alt="User 2"
-        size="md"
-        className="ring-2 ring-white"
-      />
-      <Avatar
-        fallback="Jane Doe"
-        size="md"
-        className="ring-2 ring-white"
-      />
-      <Avatar
-        size="md"
-        className="ring-2 ring-white"
-      />
+    <div style={{ display: "flex", marginLeft: "-8px" }}>
+      {[
+        { src: "https://i.pravatar.cc/150?img=1", alt: "User 1" },
+        { src: "https://i.pravatar.cc/150?img=2", alt: "User 2" },
+      ].map((user) => (
+        <div
+          key={user.alt}
+          style={{
+            borderRadius: "9999px",
+            boxShadow: "0 0 0 2px white",
+            display: "inline-flex",
+            marginLeft: "8px",
+          }}
+        >
+          <Avatar src={user.src} alt={user.alt} size="md" />
+        </div>
+      ))}
+      <div
+        style={{
+          borderRadius: "9999px",
+          boxShadow: "0 0 0 2px white",
+          display: "inline-flex",
+          marginLeft: "8px",
+        }}
+      >
+        <Avatar fallback="Jane Doe" size="md" />
+      </div>
+      <div
+        style={{
+          borderRadius: "9999px",
+          boxShadow: "0 0 0 2px white",
+          display: "inline-flex",
+          marginLeft: "8px",
+        }}
+      >
+        <Avatar size="md" />
+      </div>
     </div>
   ),
 };

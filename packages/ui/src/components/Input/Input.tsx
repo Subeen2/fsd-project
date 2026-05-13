@@ -1,5 +1,62 @@
 import React from "react";
-import { cn } from "@fsd/shared";
+import { sva, css } from "../../../styled-system/css";
+
+const inputSlots = sva({
+  slots: [
+    "root",
+    "label",
+    "inputWrapper",
+    "input",
+    "leftIcon",
+    "rightIcon",
+    "hint",
+    "error",
+  ],
+  base: {
+    root: { display: "flex", flexDir: "column", gap: "1" },
+    label: { fontSize: "sm", fontWeight: "medium", color: "gray.700" },
+    inputWrapper: {
+      position: "relative",
+      display: "flex",
+      alignItems: "center",
+    },
+    input: {
+      w: "full",
+      borderRadius: "md",
+      borderWidth: "1px",
+      borderStyle: "solid",
+      bg: "white",
+      px: "3",
+      py: "2",
+      fontSize: "sm",
+      color: "gray.900",
+      _placeholder: { color: "gray.400" },
+      _focusVisible: { outline: "2px solid", outlineOffset: "1px" },
+      _disabled: { cursor: "not-allowed", bg: "gray.50", color: "gray.400" },
+    },
+    leftIcon: { position: "absolute", left: "3", color: "gray.400" },
+    rightIcon: { position: "absolute", right: "3", color: "gray.400" },
+    hint: { fontSize: "xs", color: "gray.400" },
+    error: { fontSize: "xs", color: "red.500" },
+  },
+  variants: {
+    hasError: {
+      true: {
+        input: {
+          borderColor: "red.400",
+          _focusVisible: { outlineColor: "red.400" },
+        },
+      },
+      false: {
+        input: {
+          borderColor: "gray.300",
+          _focusVisible: { outlineColor: "blue.500" },
+        },
+      },
+    },
+  },
+  defaultVariants: { hasError: false },
+});
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -20,52 +77,42 @@ export function Input({
   ...props
 }: InputProps) {
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
+  const slots = inputSlots({ hasError: !!error });
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className={slots.root}>
       {label && (
-        <label
-          htmlFor={inputId}
-          className="text-sm font-medium text-gray-700"
-        >
+        <label htmlFor={inputId} className={slots.label}>
           {label}
         </label>
       )}
-      <div className="relative flex items-center">
-        {leftIcon && (
-          <span className="absolute left-3 text-gray-400">{leftIcon}</span>
-        )}
+      <div className={slots.inputWrapper}>
+        {leftIcon && <span className={slots.leftIcon}>{leftIcon}</span>}
         <input
           id={inputId}
-          className={cn(
-            "w-full rounded-md border bg-white px-3 py-2 text-sm text-gray-900",
-            "placeholder:text-gray-400",
-            "focus:outline-none focus:ring-2 focus:ring-offset-1",
-            "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
-            error
-              ? "border-red-400 focus:ring-red-400"
-              : "border-gray-300 focus:ring-blue-500",
-            !!leftIcon && "pl-9",
-            !!rightIcon && "pr-9",
-            className
-          )}
+          className={[
+            slots.input,
+            leftIcon && css({ pl: "9" }),
+            rightIcon && css({ pr: "9" }),
+            className,
+          ]
+            .filter(Boolean)
+            .join(" ")}
           aria-invalid={!!error}
           aria-describedby={
             error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined
           }
           {...props}
         />
-        {rightIcon && (
-          <span className="absolute right-3 text-gray-400">{rightIcon}</span>
-        )}
+        {rightIcon && <span className={slots.rightIcon}>{rightIcon}</span>}
       </div>
       {error && (
-        <p id={`${inputId}-error`} className="text-xs text-red-500">
+        <p id={`${inputId}-error`} className={slots.error}>
           {error}
         </p>
       )}
       {!error && hint && (
-        <p id={`${inputId}-hint`} className="text-xs text-gray-400">
+        <p id={`${inputId}-hint`} className={slots.hint}>
           {hint}
         </p>
       )}

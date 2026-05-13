@@ -33,6 +33,9 @@ root
 # 의존성 설치
 pnpm install
 
+# Panda CSS 코드 생성 (최초 1회 또는 panda.config.ts 변경 시)
+pnpm --filter @fsd/ui panda
+
 # 전체 개발 서버 (web + server + storybook 동시 실행)
 pnpm dev
 
@@ -45,6 +48,20 @@ pnpm --filter @fsd/storybook dev
 pnpm build
 pnpm typecheck
 pnpm lint
+
+# 전체 테스트 (turbo 병렬 실행)
+pnpm test
+
+# 특정 패키지만
+pnpm --filter @fsd/shared test
+pnpm --filter @fsd/features test
+pnpm --filter @fsd/ui test
+
+# watch 모드 (파일 변경 감지)
+pnpm --filter @fsd/ui test:watch
+
+# 커버리지 리포트
+pnpm --filter @fsd/ui test:coverage
 ```
 
 | 앱        | 주소                   |
@@ -123,25 +140,34 @@ pnpm lint
 
 ---
 
-### 왜 Tailwind CSS 4?
+### 왜 Tailwind CSS 4 + Panda CSS SVA?
 
-**결정**: `@fsd/ui` 컴포넌트와 `apps/web` 모두 Tailwind CSS 4 사용.
+**결정**: 두 도구를 역할에 따라 분리해서 공존.
 
-**이유**:
+- `apps/web` 페이지 레이아웃·유틸리티 스타일 → **Tailwind CSS 4**
+- `packages/ui` 컴포넌트 레시피 → **Panda CSS SVA**
+
+**Tailwind CSS 4를 선택한 이유**:
 
 - CSS-in-JS 대비 빌드 타임 스타일 추출이므로 런타임 오버헤드가 없다.
-- Tailwind 4는 `tailwind.config.js` 없이 CSS 파일 안 `@import "tailwindcss"`만으로 동작한다. 설정 파일 관리 부담이 줄었다.
-- `@source` 디렉티브로 `packages/ui/src`를 명시해 모노레포 패키지 클래스도 퍼지 없이 스캔된다.
-- 유틸리티 클래스 기반이라 디자인 토큰 변경이 컴포넌트 파일을 건드리지 않아도 CSS 변수 하나로 전파된다.
+- `tailwind.config.js` 없이 CSS 파일 안 `@import "tailwindcss"`만으로 동작한다. 설정 파일 관리 부담이 줄었다.
+- `@source` 디렉티브로 `packages/ui/src`를 명시해 모노레포 패키지 클래스도 스캔된다.
+
+**Panda CSS SVA를 컴포넌트 레시피에 선택한 이유**:
+
+- `sva` (Slot Variance Authority)는 컴포넌트를 슬롯 단위(`root`, `leftIcon`, `rightIcon`, `spinner`, `label`)로 쪼개어 각 슬롯에 독립적인 variant 스타일을 부여한다. Tailwind 문자열 클래스 조합으로는 이 수준의 슬롯별 제어가 어렵다.
+- variant 정의가 타입으로 추론된다. 잘못된 variant 값은 컴파일 타임에 잡힌다.
+- 컴포넌트 스타일이 하나의 `sva()` 선언 안에 집약된다. hover/active/disabled/focus 상태가 variant별로 분산되지 않아 가독성이 높다.
+- Panda CSS는 PostCSS 플러그인으로 동작해 Tailwind Vite 플러그인과 충돌 없이 공존한다.
 
 **대안 검토**:
 
-| 방식              | 탈락 이유                                                           |
-| ----------------- | ------------------------------------------------------------------- |
-| Panda CSS         | 타입 안전하고 매력적이지만 Tailwind 생태계 친숙도, 아직 성숙도 부족 |
-| styled-components | 런타임 스타일 주입, RSC 비호환                                      |
-| CSS Modules       | 네이밍 충돌 없지만 컴포넌트 간 스타일 공유 번거로움                 |
-| vanilla-extract   | 빌드 타임 + 타입 안전하지만 러닝 커브 높음                          |
+| 방식              | 탈락 이유                                           |
+| ----------------- | --------------------------------------------------- |
+| Tailwind만 사용   | 슬롯별 variant 스타일 분리가 어렵고 문자열이 길어짐 |
+| styled-components | 런타임 스타일 주입, RSC 비호환                      |
+| CSS Modules       | 컴포넌트 간 스타일 공유 번거로움                    |
+| vanilla-extract   | 빌드 타임 + 타입 안전하지만 SVA 수준 레시피 없음    |
 
 ---
 
@@ -179,12 +205,12 @@ config (leaf)
 
 **대안 검토**:
 
-| 방식         | 탈락 이유                                                 |
-| ------------ | --------------------------------------------------------- |
-| Redux Toolkit | 이 규모에서 과하다. 액션 타입·슬라이스·셀렉터 분리 비용  |
-| Jotai        | atom 단위 관리는 유연하지만 스토어 전체 구조 파악이 어려움 |
-| Context API  | 리렌더링 제어가 어렵다. 큰 상태 트리에서 성능 문제 발생  |
-| Valtio       | Proxy 기반 변이 모델이 직관적이나 팀 친숙도 낮음          |
+| 방식          | 탈락 이유                                                  |
+| ------------- | ---------------------------------------------------------- |
+| Redux Toolkit | 이 규모에서 과하다. 액션 타입·슬라이스·셀렉터 분리 비용    |
+| Jotai         | atom 단위 관리는 유연하지만 스토어 전체 구조 파악이 어려움 |
+| Context API   | 리렌더링 제어가 어렵다. 큰 상태 트리에서 성능 문제 발생    |
+| Valtio        | Proxy 기반 변이 모델이 직관적이나 팀 친숙도 낮음           |
 
 ---
 
@@ -202,12 +228,46 @@ config (leaf)
 
 **대안 검토**:
 
-| 방식         | 탈락 이유                                                         |
-| ------------ | ----------------------------------------------------------------- |
-| SWR          | 기능셋이 좁다. Mutation, 의존 쿼리, Devtools가 약함               |
-| Apollo Client | GraphQL 전용. REST 서버와 쓰기엔 오버킬                          |
-| Zustand에 통합 | 캐시 만료·재검증·중복 요청 방지를 직접 구현해야 함              |
-| fetch + useEffect | 로딩·에러 상태, 경쟁 조건, 캐시 무효화를 매번 수동 처리   |
+| 방식              | 탈락 이유                                               |
+| ----------------- | ------------------------------------------------------- |
+| SWR               | 기능셋이 좁다. Mutation, 의존 쿼리, Devtools가 약함     |
+| Apollo Client     | GraphQL 전용. REST 서버와 쓰기엔 오버킬                 |
+| Zustand에 통합    | 캐시 만료·재검증·중복 요청 방지를 직접 구현해야 함      |
+| fetch + useEffect | 로딩·에러 상태, 경쟁 조건, 캐시 무효화를 매번 수동 처리 |
+
+---
+
+### 왜 Vitest?
+
+**결정**: 단위테스트 러너로 Vitest 채택. 패키지별 환경 분리.
+
+- `@fsd/shared` → node 환경 (순수 유틸 함수)
+- `@fsd/features` → jsdom + React (Zustand 스토어, 훅)
+- `@fsd/ui` → jsdom + React (컴포넌트 렌더링·인터랙션)
+
+**이유**:
+
+- Next.js 15 + TypeScript 조합에서 Jest는 설정이 복잡하다. Vite 기반인 Vitest는 거의 제로 설정으로 동일한 API를 제공한다.
+- Jest 호환 API(`describe`, `it`, `expect`, `vi`)를 그대로 쓰므로 나중에 Jest로 전환하거나 혼용해도 마이그레이션 비용이 없다.
+- Turbopack과 별개로 동작하기 때문에 Next.js 빌드 파이프라인에 영향을 주지 않는다.
+- `@testing-library/react`와 조합하면 사용자 관점의 렌더링·인터랙션 테스트가 가능하다. Storybook이 시각적 확인을 담당한다면, Vitest는 동작 검증을 담당한다.
+
+**Storybook과의 역할 분리**:
+
+| 역할                    | Storybook | Vitest       |
+| ----------------------- | --------- | ------------ |
+| 시각적 확인             | ✅        | ❌           |
+| 자동화된 assertion      | ❌        | ✅           |
+| CI 회귀 감지            | 별도 설정 | ✅ 기본 지원 |
+| 비즈니스 로직·훅 테스트 | ❌        | ✅           |
+
+**대안 검토**:
+
+| 방식       | 탈락 이유                                             |
+| ---------- | ----------------------------------------------------- |
+| Jest       | Next.js 15 + Turbopack 조합에서 설정 복잡, 속도 느림  |
+| Cypress    | E2E 도구. 단위테스트 목적으로는 무겁고 실행 속도 느림 |
+| Playwright | 마찬가지로 E2E 전용. 브라우저 실행 비용 큼            |
 
 ---
 
@@ -232,9 +292,11 @@ config (leaf)
 | 프레임워크          | Next.js (App Router) | 15.x      |
 | UI 라이브러리       | React                | 19.x      |
 | 서버                | Express + ws         | 4.x / 8.x |
-| 스타일              | Tailwind CSS         | 4.x       |
+| 스타일 (유틸리티)   | Tailwind CSS         | 4.x       |
+| 스타일 (컴포넌트)   | Panda CSS SVA        | 1.x       |
 | 클라이언트 상태     | Zustand              | 5.x       |
 | 서버 상태           | TanStack Query       | 5.x       |
 | 언어                | TypeScript (strict)  | 5.x       |
+| 단위테스트          | Vitest               | 4.x       |
 | UI 문서             | Storybook            | 8.x       |
 | 런타임              | Node.js              | ≥ 20      |
