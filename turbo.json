@@ -27,8 +27,11 @@
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": ["coverage/**"]
     },
+    "panda": {
+      "outputs": ["styled-system/**"]
+    },
     "typecheck": {
-      "dependsOn": ["^typecheck"],
+      "dependsOn": ["^typecheck", "panda"],
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": []
     },
