@@ -128,7 +128,14 @@ async function handleChatJoin(
   const userListEvent: WsChatUserListEvent = {
     type: "chat:user_list",
     timestamp: new Date().toISOString(),
-    payload: { users: Array.from(onlineUsers.values()) },
+    payload: {
+      // sessionId 기준 맵이라 같은 유저가 여러 세션으로 중복 등록될 수 있으므로 userId 기준 dedup
+      users: [
+        ...new Map(
+          Array.from(onlineUsers.values()).map((u) => [u.id, u]),
+        ).values(),
+      ],
+    },
   };
   send(ws, userListEvent);
 

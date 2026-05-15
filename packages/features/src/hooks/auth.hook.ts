@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ApiResponse, AuthResponse, RegisterPayload } from "@fsd/api";
 import { AUTH_ROUTES } from "@fsd/api";
 import { useAuthStore } from "../stores/auth.store";
@@ -10,11 +10,18 @@ const API_URL = process.env["NEXT_PUBLIC_API_URL"] ?? "http://localhost:3001";
 
 export function useAuth() {
   const store = useAuthStore();
+  const [isLoading, setIsLoading] = useState(!store.isAuthenticated);
 
   useEffect(() => {
-    if (store.isAuthenticated) return;
+    if (store.isAuthenticated) {
+      setIsLoading(false);
+      return;
+    }
     const stored = localStorage.getItem(TOKEN_KEY);
-    if (!stored) return;
+    if (!stored) {
+      setIsLoading(false);
+      return;
+    }
 
     void fetch(`${API_URL}${AUTH_ROUTES.me.path}`, {
       headers: { Authorization: `Bearer ${stored}` },
@@ -27,7 +34,8 @@ export function useAuth() {
           localStorage.removeItem(TOKEN_KEY);
         }
       })
-      .catch(() => localStorage.removeItem(TOKEN_KEY));
+      .catch(() => localStorage.removeItem(TOKEN_KEY))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const login = async (
@@ -72,6 +80,7 @@ export function useAuth() {
     user: store.user,
     token: store.token,
     isAuthenticated: store.isAuthenticated,
+    isLoading,
     login,
     register,
     logout,

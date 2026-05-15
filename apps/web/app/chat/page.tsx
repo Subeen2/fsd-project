@@ -8,16 +8,16 @@ import { css } from "../../styled-system/css";
 
 export default function ChatPage() {
   const router = useRouter();
-  const { user, token, isAuthenticated, logout } = useAuth();
+  const { user, token, isAuthenticated, isLoading, logout } = useAuth();
   const { messages, onlineUsers, status, sendMessage } = useChatSocket(token);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       router.push("/login");
     }
-  }, [isAuthenticated, router]);
+  }, [isLoading, isAuthenticated, router]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,10 +33,10 @@ export default function ChatPage() {
 
   const handleLogout = () => {
     logout();
-    router.push("/login");
+    // router.push는 useEffect([isAuthenticated])가 담당
   };
 
-  if (!isAuthenticated) return null;
+  if (isLoading || !isAuthenticated) return null;
 
   const statusColor =
     status === "connected"
@@ -159,6 +159,9 @@ export default function ChatPage() {
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
+          borderRightWidth: "1px",
+          borderStyle: "solid",
+          borderColor: "gray.200",
         })}
       >
         {/* 상단 상태 바 */}
