@@ -9,7 +9,18 @@ import { css } from "../../styled-system/css";
 export default function ChatPage() {
   const router = useRouter();
   const { user, token, isAuthenticated, isLoading, logout } = useAuth();
-  const { messages, onlineUsers, status, sendMessage } = useChatSocket(token);
+  const chatUser = user
+    ? {
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        avatarUrl: user.avatarUrl ?? null,
+      }
+    : null;
+  const { messages, onlineUsers, status, sendMessage } = useChatSocket(
+    token,
+    chatUser,
+  );
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

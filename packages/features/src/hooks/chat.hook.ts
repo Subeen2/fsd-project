@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatMessage, ChatUser, WsEvent } from "@fsd/api";
 
+type LocalMessage = ChatMessage & { pending?: boolean };
+
 const WS_URL = process.env["NEXT_PUBLIC_WS_URL"] ?? "ws://localhost:3002/ws";
 
 const PING_INTERVAL = 20_000;
@@ -11,8 +13,15 @@ const MAX_BACKOFF = 30_000;
 
 export type ChatStatus = "connecting" | "connected" | "disconnected";
 
-export function useChatSocket(token: string | null) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export function useChatSocket(
+  token: string | null,
+  user: ChatUser | null = null,
+) {
+  const [messages, setMessages] = useState<LocalMessage[]>([]);
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
   const [onlineUsers, setOnlineUsers] = useState<ChatUser[]>([]);
   const [status, setStatus] = useState<ChatStatus>("disconnected");
 
@@ -94,9 +103,25 @@ export function useChatSocket(token: string | null) {
           case "chat:history":
             setMessages(data.payload.messages);
             break;
-          case "chat:message":
-            setMessages((prev) => [...prev, data.payload.message]);
+          case "chat:message": {
+            const incoming = data.payload.message;
+            setMessages((prev) => {
+              const pendingIdx = prev.findIndex(
+                (m) =>
+                  m.pending &&
+                  m.content === incoming.content &&
+                  m.author.id === incoming.author.id,
+              );
+              if (pendingIdx !== -1) {
+                const next = [...prev];
+                next[pendingIdx] = incoming;
+                return next;
+              }
+              if (prev.some((m) => m.id === incoming.id)) return prev;
+              return [...prev, incoming];
+            });
             break;
+          }
           case "chat:user_list":
             setOnlineUsers(data.payload.users);
             break;
@@ -158,6 +183,19 @@ export function useChatSocket(token: string | null) {
   const sendMessage = useCallback((content: string) => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+    const currentUser = userRef.current;
+    if (currentUser) {
+      const optimistic: LocalMessage = {
+        id: `pending_${Date.now()}`,
+        content,
+        author: currentUser,
+        createdAt: new Date().toISOString(),
+        pending: true,
+      };
+      setMessages((prev) => [...prev, optimistic]);
+    }
+
     ws.send(
       JSON.stringify({
         type: "chat:send",
