@@ -1,4 +1,5 @@
 FROM node:20-alpine
+RUN apk add --no-cache openssl
 RUN corepack enable
 
 WORKDIR /app
@@ -24,5 +25,5 @@ RUN pnpm --filter @fsd/ws build
 
 ENV NODE_ENV=production
 WORKDIR /app/apps/ws
-EXPOSE 8080
+EXPOSE 3002
 CMD ["node", "dist/index.js"]

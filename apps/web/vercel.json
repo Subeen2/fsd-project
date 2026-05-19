@@ -1,5 +1,4 @@
 {
   "buildCommand": "cd ../.. && pnpm build --filter @fsd/web",
-  "outputDirectory": ".next",
   "installCommand": "cd ../.. && pnpm install"
 }
