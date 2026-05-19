@@ -1,4 +1,9 @@
-import type { ID, Timestamp, PaginationParams, PaginatedResult } from "@fsd/shared";
+import type {
+  ID,
+  Timestamp,
+  PaginationParams,
+  PaginatedResult,
+} from "@fsd/shared";
 
 // ─── User ─────────────────────────────────────────────────────────────────────
 
@@ -72,6 +77,41 @@ export interface ApiError {
 
 export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+export interface RegisterPayload {
+  email: string;
+  username: string;
+  displayName: string;
+  password: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+export interface ChatUser {
+  id: ID;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+}
+
+export interface ChatMessage {
+  id: ID;
+  content: string;
+  author: ChatUser;
+  createdAt: Timestamp;
+}
+
 // ─── WebSocket Events ─────────────────────────────────────────────────────────
 
 export type WsEventType =
@@ -83,7 +123,14 @@ export type WsEventType =
   | "user:joined"
   | "user:left"
   | "ping"
-  | "pong";
+  | "pong"
+  | "chat:join"
+  | "chat:send"
+  | "chat:history"
+  | "chat:message"
+  | "chat:user_list"
+  | "chat:user_joined"
+  | "chat:user_left";
 
 export interface WsBaseEvent<T extends WsEventType, P = undefined> {
   type: T;
@@ -99,10 +146,36 @@ export type WsConnectionEstablishedEvent = WsBaseEvent<
 export type WsPostCreatedEvent = WsBaseEvent<"post:created", { post: Post }>;
 export type WsPostUpdatedEvent = WsBaseEvent<"post:updated", { post: Post }>;
 export type WsPostDeletedEvent = WsBaseEvent<"post:deleted", { postId: ID }>;
-export type WsUserJoinedEvent = WsBaseEvent<"user:joined", { user: Pick<User, "id" | "username"> }>;
+export type WsUserJoinedEvent = WsBaseEvent<
+  "user:joined",
+  { user: Pick<User, "id" | "username"> }
+>;
 export type WsUserLeftEvent = WsBaseEvent<"user:left", { userId: ID }>;
 export type WsPingEvent = WsBaseEvent<"ping", undefined>;
 export type WsPongEvent = WsBaseEvent<"pong", undefined>;
+
+// Client → Server
+export type WsChatJoinEvent = WsBaseEvent<"chat:join", { token: string }>;
+export type WsChatSendEvent = WsBaseEvent<"chat:send", { content: string }>;
+
+// Server → Client
+export type WsChatHistoryEvent = WsBaseEvent<
+  "chat:history",
+  { messages: ChatMessage[] }
+>;
+export type WsChatMessageEvent = WsBaseEvent<
+  "chat:message",
+  { message: ChatMessage }
+>;
+export type WsChatUserListEvent = WsBaseEvent<
+  "chat:user_list",
+  { users: ChatUser[] }
+>;
+export type WsChatUserJoinedEvent = WsBaseEvent<
+  "chat:user_joined",
+  { user: ChatUser }
+>;
+export type WsChatUserLeftEvent = WsBaseEvent<"chat:user_left", { userId: ID }>;
 
 export type WsEvent =
   | WsConnectionEstablishedEvent
@@ -112,4 +185,11 @@ export type WsEvent =
   | WsUserJoinedEvent
   | WsUserLeftEvent
   | WsPingEvent
-  | WsPongEvent;
+  | WsPongEvent
+  | WsChatJoinEvent
+  | WsChatSendEvent
+  | WsChatHistoryEvent
+  | WsChatMessageEvent
+  | WsChatUserListEvent
+  | WsChatUserJoinedEvent
+  | WsChatUserLeftEvent;

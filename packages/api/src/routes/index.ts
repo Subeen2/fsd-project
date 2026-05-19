@@ -29,6 +29,7 @@ export const POST_ROUTES = {
 // ─── Auth routes ──────────────────────────────────────────────────────────────
 
 export const AUTH_ROUTES = {
+  register: { method: "POST", path: `${API_BASE}/auth/register` },
   login: { method: "POST", path: `${API_BASE}/auth/login` },
   logout: { method: "POST", path: `${API_BASE}/auth/logout` },
   refresh: { method: "POST", path: `${API_BASE}/auth/refresh` },

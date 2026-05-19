@@ -1,8 +1,16 @@
-import { Router, type Request, type Response, type Router as RouterType } from "express";
+import {
+  Router,
+  type Request,
+  type Response,
+  type Router as RouterType,
+} from "express";
 import type { ApiResponse, User, Post } from "@fsd/api";
 import { API_BASE } from "@fsd/api";
+import authRouter from "./auth";
 
 const router: RouterType = Router();
+
+router.use(authRouter);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 
