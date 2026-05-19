@@ -76,9 +76,14 @@ async function handleChatJoin(
     return;
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: payload.userId },
-  });
+  let dbUser;
+  try {
+    dbUser = await prisma.user.findUnique({ where: { id: payload.userId } });
+  } catch (err) {
+    console.error("[WS] DB error on chat:join:", err);
+    ws.close(1011, "DB error");
+    return;
+  }
   if (!dbUser) {
     ws.close(1008, "User not found");
     return;
@@ -94,21 +99,26 @@ async function handleChatJoin(
   ws.user = chatUser;
   onlineUsers.set(ws.sessionId, chatUser);
 
-  // 최근 50개 메시지 히스토리 전송
-  const messages = await prisma.message.findMany({
-    take: 50,
-    orderBy: { createdAt: "asc" },
-    include: {
-      author: {
-        select: {
-          id: true,
-          username: true,
-          displayName: true,
-          avatarUrl: true,
+  let messages;
+  try {
+    messages = await prisma.message.findMany({
+      take: 50,
+      orderBy: { createdAt: "asc" },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+          },
         },
       },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("[WS] DB error fetching messages:", err);
+    messages = [];
+  }
 
   const history: ChatMessage[] = messages.map((m) => ({
     id: m.id,
@@ -124,12 +134,10 @@ async function handleChatJoin(
   };
   send(ws, historyEvent);
 
-  // 현재 접속자 목록을 입장한 유저에게 전송
   const userListEvent: WsChatUserListEvent = {
     type: "chat:user_list",
     timestamp: new Date().toISOString(),
     payload: {
-      // sessionId 기준 맵이라 같은 유저가 여러 세션으로 중복 등록될 수 있으므로 userId 기준 dedup
       users: [
         ...new Map(
           Array.from(onlineUsers.values()).map((u) => [u.id, u]),
@@ -139,7 +147,6 @@ async function handleChatJoin(
   };
   send(ws, userListEvent);
 
-  // 나머지 접속자에게 입장 알림 브로드캐스트
   const userJoinedEvent: WsChatUserJoinedEvent = {
     type: "chat:user_joined",
     timestamp: new Date().toISOString(),
@@ -147,7 +154,7 @@ async function handleChatJoin(
   };
   broadcastOthers(wss, ws, userJoinedEvent);
 
-  console.warn(`[WS] ${chatUser.username} joined chat`);
+  console.log(`[WS] ${chatUser.username} joined chat`);
 }
 
 async function handleChatSend(
@@ -222,7 +229,7 @@ async function handleMessage(
       await handleChatSend(ws, wss, event.payload.content);
       break;
     default:
-      console.warn(`[WS] Unhandled event: ${event.type}`);
+      console.warn(`[WS] Unhandled event: ${(event as WsEvent).type}`);
   }
 }
 
@@ -248,7 +255,7 @@ export function createWsServer(httpServer: Server): WebSocketServer {
     ws.sessionId = crypto.randomUUID();
     ws.isAlive = true;
 
-    console.warn(`[WS] Client connected — sessionId=${ws.sessionId}`);
+    console.log(`[WS] Client connected — sessionId=${ws.sessionId}`);
 
     const established: WsConnectionEstablishedEvent = {
       type: "connection:established",
@@ -266,7 +273,7 @@ export function createWsServer(httpServer: Server): WebSocketServer {
     });
 
     ws.on("close", () => {
-      console.warn(`[WS] Client disconnected — sessionId=${ws.sessionId}`);
+      console.log(`[WS] Client disconnected — sessionId=${ws.sessionId}`);
 
       if (ws.user) {
         onlineUsers.delete(ws.sessionId);
@@ -278,7 +285,7 @@ export function createWsServer(httpServer: Server): WebSocketServer {
         };
         broadcastAll(wss, userLeftEvent);
 
-        console.warn(`[WS] ${ws.user.username} left chat`);
+        console.log(`[WS] ${ws.user.username} left chat`);
       }
     });
 
@@ -288,8 +295,4 @@ export function createWsServer(httpServer: Server): WebSocketServer {
   });
 
   return wss;
-}
-
-export function broadcast(wss: WebSocketServer, event: WsEvent): void {
-  broadcastAll(wss, event);
 }

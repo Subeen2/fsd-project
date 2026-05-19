@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChatMessage, ChatUser, WsEvent } from "@fsd/api";
 
-const WS_URL = process.env["NEXT_PUBLIC_WS_URL"] ?? "ws://localhost:3001/ws";
+const WS_URL = process.env["NEXT_PUBLIC_WS_URL"] ?? "ws://localhost:3002/ws";
 
 const PING_INTERVAL = 20_000;
 const PING_TIMEOUT = 5_000;

@@ -9,8 +9,8 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@fsd/ui", "@fsd/shared", "@fsd/api", "@fsd/features"],
   // Environment variables exposed to the browser
   env: {
-    NEXT_PUBLIC_API_URL: process.env["NEXT_PUBLIC_API_URL"] ?? "http://localhost:3001",
-    NEXT_PUBLIC_WS_URL: process.env["NEXT_PUBLIC_WS_URL"] ?? "ws://localhost:3001",
+    NEXT_PUBLIC_WS_URL:
+      process.env["NEXT_PUBLIC_WS_URL"] ?? "ws://localhost:3002/ws",
   },
 };
 
