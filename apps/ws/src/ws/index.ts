@@ -99,7 +99,18 @@ async function handleChatJoin(
   ws.user = chatUser;
   onlineUsers.set(ws.sessionId, chatUser);
 
-  let messages;
+  type MessageWithAuthor = {
+    id: string;
+    content: string;
+    createdAt: Date;
+    author: {
+      id: string;
+      username: string;
+      displayName: string;
+      avatarUrl: string | null;
+    };
+  };
+  let messages: MessageWithAuthor[] = [];
   try {
     messages = await prisma.message.findMany({
       take: 50,
@@ -117,7 +128,6 @@ async function handleChatJoin(
     });
   } catch (err) {
     console.error("[WS] DB error fetching messages:", err);
-    messages = [];
   }
 
   const history: ChatMessage[] = messages.map((m) => ({
