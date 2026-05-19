@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+apps/web
+apps/storybook
+packages/ui
+packages/features
+**/dist
+**/.next
+**/storybook-static
+**/.turbo
+**/*.log
+.git
+.env*
