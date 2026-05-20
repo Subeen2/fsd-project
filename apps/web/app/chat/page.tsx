@@ -3,12 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, Button, Input } from "@fsd/ui";
-import { useAuth, useChatSocket } from "@fsd/features";
+import {
+  useAuth,
+  useChatSocket,
+  useChatTheme,
+  BUBBLE_COLORS,
+  CHAT_BGS,
+  FONT_SIZES,
+} from "@fsd/features";
 import { css } from "../../styled-system/css";
+import { ChatThemePanel } from "./ChatThemePanel";
 
 export default function ChatPage() {
   const router = useRouter();
   const { user, token, isAuthenticated, isLoading, logout } = useAuth();
+  const { bubbleColor, chatBg, fontSize } = useChatTheme();
+  const [themeOpen, setThemeOpen] = useState(false);
+
   const chatUser = user
     ? {
         id: user.id,
@@ -44,7 +55,6 @@ export default function ChatPage() {
 
   const handleLogout = () => {
     logout();
-    // router.push는 useEffect([isAuthenticated])가 담당
   };
 
   if (isLoading || !isAuthenticated) return null;
@@ -62,6 +72,12 @@ export default function ChatPage() {
       : status === "connecting"
         ? "연결 중..."
         : "연결 끊김";
+
+  const theme = {
+    bubble: BUBBLE_COLORS[bubbleColor],
+    bg: CHAT_BGS[chatBg],
+    fs: FONT_SIZES[fontSize].px,
+  };
 
   return (
     <div
@@ -197,13 +213,30 @@ export default function ChatPage() {
               flexShrink: "0",
             })}
           />
-          <span className={css({ fontSize: "sm", color: "gray.500" })}>
+          <span
+            className={css({ fontSize: "sm", color: "gray.500", flex: "1" })}
+          >
             {statusLabel}
           </span>
+          <button
+            onClick={() => setThemeOpen(true)}
+            title="채팅방 꾸미기"
+            className={css({
+              fontSize: "md",
+              cursor: "pointer",
+              color: "gray.400",
+              px: "1",
+              borderRadius: "md",
+              _hover: { color: "gray.700", bg: "gray.100" },
+            })}
+          >
+            🎨
+          </button>
         </div>
 
         {/* 메시지 목록 */}
         <div
+          style={{ backgroundColor: theme.bg.bg, fontSize: theme.fs }}
           className={css({
             flex: "1",
             overflowY: "auto",
@@ -257,8 +290,8 @@ export default function ChatPage() {
                       className={css({
                         fontSize: "xs",
                         fontWeight: "semibold",
-                        color: "gray.600",
                       })}
+                      style={{ color: theme.bg.dark ? "#94a3b8" : "#4b5563" }}
                     >
                       {msg.author.displayName}
                     </span>
@@ -268,16 +301,27 @@ export default function ChatPage() {
                       px: "3",
                       py: "2",
                       borderRadius: "lg",
-                      fontSize: "sm",
                       lineHeight: "relaxed",
-                      bg: isMine ? "blue.600" : "gray.100",
-                      color: isMine ? "white" : "gray.900",
                       wordBreak: "break-word",
                     })}
+                    style={
+                      isMine
+                        ? {
+                            backgroundColor: theme.bubble.bg,
+                            color: theme.bubble.text,
+                          }
+                        : {
+                            backgroundColor: theme.bg.otherBubbleBg,
+                            color: theme.bg.otherBubbleText,
+                          }
+                    }
                   >
                     {msg.content}
                   </div>
-                  <span className={css({ fontSize: "xs", color: "gray.400" })}>
+                  <span
+                    className={css({ fontSize: "xs" })}
+                    style={{ color: theme.bg.dark ? "#475569" : "#9ca3af" }}
+                  >
                     {new Date(msg.createdAt).toLocaleTimeString("ko-KR", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -320,6 +364,9 @@ export default function ChatPage() {
           </Button>
         </form>
       </div>
+
+      {/* 테마 패널 */}
+      <ChatThemePanel open={themeOpen} onClose={() => setThemeOpen(false)} />
     </div>
   );
 }
