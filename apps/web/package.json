@@ -7,7 +7,7 @@
     "build": "prisma generate && panda codegen && next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "prisma generate && tsc --noEmit",
     "panda": "panda codegen"
   },
   "dependencies": {
