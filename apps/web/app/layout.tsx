@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { css } from "../styled-system/css";
+import { HeaderTitle } from "./HeaderTitle";
 
 export const metadata: Metadata = {
   title: {
@@ -37,15 +38,7 @@ export default function RootLayout({
               justifyContent: "space-between",
             })}
           >
-            <span
-              className={css({
-                fontSize: "xl",
-                fontWeight: "bold",
-                color: "blue.600",
-              })}
-            >
-              FSD Project
-            </span>
+            <HeaderTitle />
           </nav>
         </header>
         <main
