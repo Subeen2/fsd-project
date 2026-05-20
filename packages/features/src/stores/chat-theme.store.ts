@@ -56,10 +56,13 @@ export const FONT_SIZES: Record<FontSize, { px: string; label: string }> = {
 
 const STORAGE_KEY = "fsd-chat-theme";
 
+const DEFAULT_ROOM_NAME = "FSD Project";
+
 function readStorage(): {
   bubbleColor?: BubbleColor;
   chatBg?: ChatBg;
   fontSize?: FontSize;
+  roomName?: string;
 } {
   if (typeof window === "undefined") return {};
   try {
@@ -74,6 +77,7 @@ function writeStorage(patch: {
   bubbleColor: BubbleColor;
   chatBg: ChatBg;
   fontSize: FontSize;
+  roomName: string;
 }) {
   if (typeof window === "undefined") return;
   try {
@@ -87,9 +91,11 @@ interface ChatThemeState {
   bubbleColor: BubbleColor;
   chatBg: ChatBg;
   fontSize: FontSize;
+  roomName: string;
   setBubbleColor: (c: BubbleColor) => void;
   setChatBg: (bg: ChatBg) => void;
   setFontSize: (s: FontSize) => void;
+  setRoomName: (name: string) => void;
 }
 
 const saved = readStorage();
@@ -98,20 +104,46 @@ export const useChatTheme = create<ChatThemeState>((set, get) => ({
   bubbleColor: saved.bubbleColor ?? "blue",
   chatBg: saved.chatBg ?? "white",
   fontSize: saved.fontSize ?? "md",
+  roomName: saved.roomName ?? DEFAULT_ROOM_NAME,
 
   setBubbleColor: (bubbleColor) => {
     set({ bubbleColor });
     const s = get();
-    writeStorage({ bubbleColor, chatBg: s.chatBg, fontSize: s.fontSize });
+    writeStorage({
+      bubbleColor,
+      chatBg: s.chatBg,
+      fontSize: s.fontSize,
+      roomName: s.roomName,
+    });
   },
   setChatBg: (chatBg) => {
     set({ chatBg });
     const s = get();
-    writeStorage({ bubbleColor: s.bubbleColor, chatBg, fontSize: s.fontSize });
+    writeStorage({
+      bubbleColor: s.bubbleColor,
+      chatBg,
+      fontSize: s.fontSize,
+      roomName: s.roomName,
+    });
   },
   setFontSize: (fontSize) => {
     set({ fontSize });
     const s = get();
-    writeStorage({ bubbleColor: s.bubbleColor, chatBg: s.chatBg, fontSize });
+    writeStorage({
+      bubbleColor: s.bubbleColor,
+      chatBg: s.chatBg,
+      fontSize,
+      roomName: s.roomName,
+    });
+  },
+  setRoomName: (roomName) => {
+    set({ roomName });
+    const s = get();
+    writeStorage({
+      bubbleColor: s.bubbleColor,
+      chatBg: s.chatBg,
+      fontSize: s.fontSize,
+      roomName,
+    });
   },
 }));

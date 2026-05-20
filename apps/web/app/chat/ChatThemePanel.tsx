@@ -9,6 +9,7 @@ import {
   type ChatBg,
   type FontSize,
 } from "@fsd/features";
+import { Input } from "@fsd/ui";
 import { css } from "../../styled-system/css";
 
 interface Props {
@@ -21,9 +22,11 @@ export function ChatThemePanel({ open, onClose }: Props) {
     bubbleColor,
     chatBg,
     fontSize,
+    roomName,
     setBubbleColor,
     setChatBg,
     setFontSize,
+    setRoomName,
   } = useChatTheme();
 
   if (!open) return null;
@@ -99,6 +102,28 @@ export function ChatThemePanel({ open, onClose }: Props) {
             gap: "6",
           })}
         >
+          {/* 채팅방 이름 */}
+          <section>
+            <p
+              className={css({
+                fontSize: "xs",
+                fontWeight: "semibold",
+                color: "gray.500",
+                textTransform: "uppercase",
+                letterSpacing: "wider",
+                mb: "3",
+              })}
+            >
+              채팅방 이름
+            </p>
+            <Input
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+              placeholder="채팅방 이름"
+              maxLength={30}
+            />
+          </section>
+
           {/* 내 말풍선 색상 */}
           <section>
             <p
