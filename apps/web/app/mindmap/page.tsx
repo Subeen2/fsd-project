@@ -1,9 +1,4 @@
-import dynamic from "next/dynamic";
-
-const MindmapCanvas = dynamic(
-  () => import("./MindmapCanvas").then((m) => ({ default: m.MindmapCanvas })),
-  { ssr: false },
-);
+import { MindmapClientWrapper } from "./MindmapClientWrapper";
 
 export const metadata = { title: "마인드맵" };
 
@@ -19,7 +14,7 @@ export default function MindmapPage() {
         zIndex: 10,
       }}
     >
-      <MindmapCanvas />
+      <MindmapClientWrapper />
     </div>
   );
 }
