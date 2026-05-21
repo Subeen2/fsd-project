@@ -11,6 +11,7 @@
     "@fsd/features": "workspace:*",
     "@fsd/shared": "workspace:*",
     "@fsd/ui": "workspace:*",
+    "@xyflow/react": "^12.3.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

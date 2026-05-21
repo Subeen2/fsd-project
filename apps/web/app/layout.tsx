@@ -3,6 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { css } from "../styled-system/css";
 import { HeaderTitle } from "./HeaderTitle";
+import { NavLinks } from "./NavLinks";
 
 export const metadata: Metadata = {
   title: {
@@ -39,6 +40,7 @@ export default function RootLayout({
             })}
           >
             <HeaderTitle />
+            <NavLinks />
           </nav>
         </header>
         <main
