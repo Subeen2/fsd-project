@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import type { ApiResponse, AuthResponse, RegisterPayload } from "@fsd/api";
 import { AUTH_ROUTES } from "@fsd/api";
-import { useAuthStore } from "../stores/auth.store";
+import { TOKEN_KEY, useAuthStore } from "../stores/auth.store";
 
-const TOKEN_KEY = "fsd_token";
 const API_URL = "";
 
 export function useAuth() {
@@ -13,16 +12,32 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(!store.isAuthenticated);
 
   useEffect(() => {
-    if (store.isAuthenticated) {
-      setIsLoading(false);
-      return;
-    }
     const stored = localStorage.getItem(TOKEN_KEY);
+
     if (!stored) {
       setIsLoading(false);
       return;
     }
 
+    if (store.isAuthenticated) {
+      // 캐시된 인증 상태로 즉시 렌더 — 백그라운드에서 토큰 유효성 검증
+      void fetch(`${API_URL}${AUTH_ROUTES.me.path}`, {
+        headers: { Authorization: `Bearer ${stored}` },
+      })
+        .then((r) => r.json())
+        .then((data: ApiResponse<AuthResponse["user"]>) => {
+          if (!data.success) {
+            localStorage.removeItem(TOKEN_KEY);
+            store.logout();
+          }
+        })
+        .catch(() => {
+          /* 네트워크 오류는 무시 — 오프라인 상황 허용 */
+        });
+      return;
+    }
+
+    // 스토어에 캐시가 없는 경우 (첫 방문 등) — 서버에서 복원
     void fetch(`${API_URL}${AUTH_ROUTES.me.path}`, {
       headers: { Authorization: `Bearer ${stored}` },
     })
