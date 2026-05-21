@@ -19,6 +19,7 @@ export function HeaderTitle() {
         fontWeight: "bold",
         color: "blue.600",
       })}
+      suppressHydrationWarning
     >
       {mounted ? roomName : "Mindwave"}
     </span>
