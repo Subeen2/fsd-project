@@ -8,6 +8,7 @@
     "lint": "eslint stories/ .storybook/ --ext .ts,.tsx"
   },
   "dependencies": {
+    "@fsd/features": "workspace:*",
     "@fsd/shared": "workspace:*",
     "@fsd/ui": "workspace:*",
     "react": "^19.0.0",
