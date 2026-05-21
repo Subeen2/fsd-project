@@ -1,4 +1,9 @@
-import { MindmapCanvas } from "./MindmapCanvas";
+import dynamic from "next/dynamic";
+
+const MindmapCanvas = dynamic(
+  () => import("./MindmapCanvas").then((m) => ({ default: m.MindmapCanvas })),
+  { ssr: false },
+);
 
 export const metadata = { title: "마인드맵" };
 
