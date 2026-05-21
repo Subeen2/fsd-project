@@ -11,8 +11,16 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMindmapStore } from "./useMindmapStore";
+import {
+  NODE_COLORS,
+  useMindmapStore,
+  type NodeColorId,
+} from "./useMindmapStore";
 import { MindmapNodeComponent } from "./MindmapNode";
+
+function getNodeColor(colorId?: NodeColorId) {
+  return (NODE_COLORS.find((c) => c.id === colorId) ?? NODE_COLORS[0]).bg;
+}
 
 const nodeTypes = { mindmap: MindmapNodeComponent };
 
@@ -170,7 +178,13 @@ function Canvas() {
           color="#e5e7eb"
         />
         <Controls />
-        <MiniMap nodeColor="#2563eb" maskColor="rgba(0,0,0,0.04)" />
+        <MiniMap
+          nodeColor={(node) =>
+            getNodeColor((node.data as { color?: NodeColorId }).color)
+          }
+          nodeStrokeWidth={0}
+          maskColor="rgba(0,0,0,0.04)"
+        />
       </ReactFlow>
 
       {nodes.length === 0 && (
