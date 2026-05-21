@@ -21,7 +21,7 @@ function ThemePanelDemo({ open: initialOpen = true }: ThemePanelDemoProps) {
   const [bubbleColor, setBubbleColor] = useState<BubbleColor>("blue");
   const [chatBg, setChatBg] = useState<ChatBg>("white");
   const [fontSize, setFontSize] = useState<FontSize>("md");
-  const [roomName, setRoomName] = useState("FSD Project");
+  const [roomName, setRoomName] = useState("Mindwave");
 
   const bubble = BUBBLE_COLORS[bubbleColor];
   const bg = CHAT_BGS[chatBg];

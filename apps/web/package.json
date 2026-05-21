@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@fsd/api": "workspace:*",
+    "@xyflow/react": "^12.3.6",
+    "zustand": "^5.0.0",
     "@fsd/features": "workspace:*",
     "@fsd/shared": "workspace:*",
     "@fsd/ui": "workspace:*",

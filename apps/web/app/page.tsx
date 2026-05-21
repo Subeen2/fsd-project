@@ -1,316 +1,157 @@
-import {
-  Button,
-  Input,
-  Badge,
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Avatar,
-} from "@fsd/ui";
-import { formatDate } from "@fsd/shared";
-import type { Post, User } from "@fsd/api";
-import { css } from "../styled-system/css";
+"use client";
 
-const mockUsers: User[] = [
-  {
-    id: "user_01",
-    email: "jane@example.com",
-    username: "janedoe",
-    displayName: "Jane Doe",
-    avatarUrl: "https://i.pravatar.cc/150?img=47",
-    createdAt: new Date("2025-01-10").toISOString(),
-    updatedAt: new Date("2025-01-10").toISOString(),
-  },
-  {
-    id: "user_02",
-    email: "john@example.com",
-    username: "johndoe",
-    displayName: "John Doe",
-    avatarUrl: "https://i.pravatar.cc/150?img=12",
-    createdAt: new Date("2025-02-14").toISOString(),
-    updatedAt: new Date("2025-02-14").toISOString(),
-  },
-  {
-    id: "user_03",
-    email: "sam@example.com",
-    username: "samkim",
-    displayName: "Sam Kim",
-    avatarUrl: null,
-    createdAt: new Date("2025-03-01").toISOString(),
-    updatedAt: new Date("2025-03-01").toISOString(),
-  },
-];
-
-const mockPosts: Post[] = [
-  {
-    id: "post_01",
-    title: "Getting started with the FSD monorepo",
-    content:
-      "Learn how to build scalable applications using Turborepo, pnpm workspaces, and a shared design system.",
-    authorId: "user_01",
-    author: mockUsers[0]!,
-    published: true,
-    createdAt: new Date("2025-04-01").toISOString(),
-    updatedAt: new Date("2025-04-01").toISOString(),
-  },
-  {
-    id: "post_02",
-    title: "Building a design system with React",
-    content:
-      "A step-by-step guide to creating reusable, accessible UI components with TypeScript and Panda CSS.",
-    authorId: "user_02",
-    author: mockUsers[1]!,
-    published: true,
-    createdAt: new Date("2025-04-15").toISOString(),
-    updatedAt: new Date("2025-04-15").toISOString(),
-  },
-  {
-    id: "post_03",
-    title: "WebSocket patterns for real-time apps",
-    content:
-      "Explore common WebSocket patterns including heartbeat, broadcast, and graceful shutdown.",
-    authorId: "user_03",
-    author: mockUsers[2]!,
-    published: false,
-    createdAt: new Date("2025-05-01").toISOString(),
-    updatedAt: new Date("2025-05-01").toISOString(),
-  },
-];
+import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className={css({ display: "flex", flexDir: "column", gap: "14" })}>
-      {/* Hero */}
-      <section
-        className={css({ display: "flex", flexDir: "column", gap: "5" })}
-      >
-        <div
-          className={css({ display: "flex", alignItems: "center", gap: "2" })}
-        >
-          <Badge variant="info" dot>
-            v0.0.1
-          </Badge>
-          <Badge variant="success">Monorepo Ready</Badge>
-        </div>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f8fafc",
+        gap: 48,
+      }}
+    >
+      {/* 타이틀 */}
+      <div style={{ textAlign: "center" }}>
         <h1
-          className={css({
-            fontSize: "4xl",
-            fontWeight: "bold",
-            letterSpacing: "tight",
-            color: "gray.900",
-          })}
+          style={{
+            fontSize: 36,
+            fontWeight: 700,
+            color: "#0f172a",
+            margin: 0,
+            letterSpacing: "-0.02em",
+          }}
         >
-          FSD Project
+          Mindwave
         </h1>
-        <p className={css({ fontSize: "lg", color: "gray.500", maxW: "xl" })}>
-          A production-ready monorepo with Next.js 15, Express + WebSocket, and
-          a shared design system.
+        <p style={{ fontSize: 16, color: "#94a3b8", margin: "10px 0 0" }}>
+          무엇을 시작할까요?
         </p>
-        <div className={css({ display: "flex", gap: "3" })}>
-          <Button size="lg">Get Started</Button>
-          <Button variant="secondary" size="lg">
-            View Docs
-          </Button>
-        </div>
-      </section>
+      </div>
 
-      {/* Search */}
-      <section
-        className={css({ display: "flex", flexDir: "column", gap: "3" })}
-      >
-        <h2
-          className={css({
-            fontSize: "xl",
-            fontWeight: "semibold",
-            color: "gray.900",
-          })}
-        >
-          Search Posts
-        </h2>
-        <div className={css({ maxW: "sm" })}>
-          <Input
-            placeholder="Search by title..."
-            leftIcon={
-              <svg
-                style={{ height: "16px", width: "16px" }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
+      {/* 카드 선택 */}
+      <div style={{ display: "flex", gap: 24 }}>
+        <Link href="/chat" style={{ textDecoration: "none" }}>
+          <div
+            style={{
+              width: 240,
+              height: 280,
+              backgroundColor: "#fff",
+              border: "1.5px solid #e2e8f0",
+              borderRadius: 20,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 20,
+              cursor: "pointer",
+              transition: "all 0.15s",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "#2563eb";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 8px 24px rgba(37,99,235,0.12)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "#e2e8f0";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 1px 4px rgba(0,0,0,0.06)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(0)";
+            }}
+          >
+            <span style={{ fontSize: 56 }}>💬</span>
+            <div style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: "#0f172a",
+                  margin: 0,
+                }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-                />
-              </svg>
-            }
-          />
-        </div>
-      </section>
-
-      {/* Posts */}
-      <section
-        className={css({ display: "flex", flexDir: "column", gap: "4" })}
-      >
-        <h2
-          className={css({
-            fontSize: "xl",
-            fontWeight: "semibold",
-            color: "gray.900",
-          })}
-        >
-          Recent Posts
-        </h2>
-        <div
-          className={css({
-            display: "grid",
-            gap: "4",
-            gridTemplateColumns: {
-              base: "1fr",
-              sm: "repeat(2, minmax(0, 1fr))",
-              lg: "repeat(3, minmax(0, 1fr))",
-            },
-          })}
-        >
-          {mockPosts.map((post) => (
-            <Card key={post.id} shadow="sm">
-              <CardHeader>
-                <div
-                  className={css({
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "space-between",
-                    gap: "2",
-                  })}
-                >
-                  <h3
-                    className={css({
-                      fontSize: "md",
-                      fontWeight: "semibold",
-                      color: "gray.900",
-                      lineHeight: "snug",
-                    })}
-                  >
-                    {post.title}
-                  </h3>
-                  <Badge variant={post.published ? "success" : "warning"}>
-                    {post.published ? "Published" : "Draft"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardBody>
-                <p
-                  className={css({ fontSize: "sm", color: "gray.500" })}
-                  style={{
-                    overflow: "hidden",
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 3,
-                  }}
-                >
-                  {post.content}
-                </p>
-              </CardBody>
-              <CardFooter>
-                <div
-                  className={css({
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  })}
-                >
-                  <div
-                    className={css({
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "2",
-                    })}
-                  >
-                    <Avatar
-                      src={post.author.avatarUrl}
-                      fallback={post.author.displayName}
-                      alt={post.author.displayName}
-                      size="sm"
-                    />
-                    <div>
-                      <p
-                        className={css({
-                          fontSize: "xs",
-                          fontWeight: "medium",
-                          color: "gray.700",
-                        })}
-                      >
-                        {post.author.displayName}
-                      </p>
-                      <time
-                        className={css({ fontSize: "xs", color: "gray.400" })}
-                      >
-                        {formatDate(post.createdAt)}
-                      </time>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    Read →
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Team */}
-      <section
-        className={css({ display: "flex", flexDir: "column", gap: "4" })}
-      >
-        <h2
-          className={css({
-            fontSize: "xl",
-            fontWeight: "semibold",
-            color: "gray.900",
-          })}
-        >
-          Team
-        </h2>
-        <div className={css({ display: "flex", flexDir: "column", gap: "3" })}>
-          {mockUsers.map((user) => (
-            <Card key={user.id} padding="sm" shadow="none">
-              <div
-                className={css({
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4",
-                })}
+                채팅
+              </p>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#94a3b8",
+                  margin: "6px 0 0",
+                  lineHeight: 1.5,
+                }}
               >
-                <Avatar
-                  src={user.avatarUrl}
-                  fallback={user.displayName}
-                  alt={user.displayName}
-                  size="md"
-                />
-                <div className={css({ flex: "1", minW: "0" })}>
-                  <p
-                    className={css({ fontWeight: "medium", color: "gray.900" })}
-                  >
-                    {user.displayName}
-                  </p>
-                  <p className={css({ fontSize: "sm", color: "gray.400" })}>
-                    @{user.username}
-                  </p>
-                </div>
-                <Badge variant="success" dot>
-                  Online
-                </Badge>
-                <Button variant="secondary" size="sm">
-                  Follow
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
+                실시간으로 대화하세요
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/mindmap" style={{ textDecoration: "none" }}>
+          <div
+            style={{
+              width: 240,
+              height: 280,
+              backgroundColor: "#fff",
+              border: "1.5px solid #e2e8f0",
+              borderRadius: 20,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 20,
+              cursor: "pointer",
+              transition: "all 0.15s",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "#7c3aed";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 8px 24px rgba(124,58,237,0.12)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "#e2e8f0";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 1px 4px rgba(0,0,0,0.06)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(0)";
+            }}
+          >
+            <span style={{ fontSize: 56 }}>🧠</span>
+            <div style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: "#0f172a",
+                  margin: 0,
+                }}
+              >
+                마인드맵
+              </p>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#94a3b8",
+                  margin: "6px 0 0",
+                  lineHeight: 1.5,
+                }}
+              >
+                아이디어를 구조화하세요
+              </p>
+            </div>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }

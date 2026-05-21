@@ -20,7 +20,7 @@ export function HeaderTitle() {
         color: "blue.600",
       })}
     >
-      {mounted ? roomName : "FSD Project"}
+      {mounted ? roomName : "Mindwave"}
     </span>
   );
 }

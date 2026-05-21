@@ -56,7 +56,7 @@ export const FONT_SIZES: Record<FontSize, { px: string; label: string }> = {
 
 const STORAGE_KEY = "fsd-chat-theme";
 
-const DEFAULT_ROOM_NAME = "FSD Project";
+const DEFAULT_ROOM_NAME = "Mindwave";
 
 function readStorage(): {
   bubbleColor?: BubbleColor;
