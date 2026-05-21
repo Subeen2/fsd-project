@@ -70,6 +70,7 @@ export type NodeColorId = (typeof NODE_COLORS)[number]["id"];
 export type MindmapNodeData = {
   label: string;
   color?: NodeColorId;
+  imageUrl?: string;
 } & Record<string, unknown>;
 export type MindmapNode = Node<MindmapNodeData, "mindmap">;
 
@@ -137,9 +138,14 @@ interface MindmapState {
   onNodesChange: OnNodesChange<MindmapNode>;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
-  addNode: (label: string, position: { x: number; y: number }) => void;
+  addNode: (
+    label: string,
+    position: { x: number; y: number },
+    imageUrl?: string,
+  ) => void;
   updateNodeLabel: (id: string, label: string) => void;
   updateNodeColor: (id: string, color: NodeColorId) => void;
+  updateNodeImage: (id: string, imageUrl: string) => void;
   removeNode: (id: string) => void;
   clearAll: () => void;
 }
@@ -180,13 +186,13 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
     writeStorage(get().nodes, edges);
   },
 
-  addNode: (label, position) => {
+  addNode: (label, position, imageUrl) => {
     const id = `node-${counter++}`;
     const node: MindmapNode = {
       id,
       type: "mindmap",
       position,
-      data: { label },
+      data: { label, ...(imageUrl ? { imageUrl } : {}) },
     };
     const nodes = [...get().nodes, node];
     set({ nodes });
@@ -196,6 +202,14 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
   updateNodeLabel: (id, label) => {
     const nodes = get().nodes.map((n) =>
       n.id === id ? { ...n, data: { ...n.data, label } } : n,
+    );
+    set({ nodes });
+    writeStorage(nodes, get().edges);
+  },
+
+  updateNodeImage: (id, imageUrl) => {
+    const nodes = get().nodes.map((n) =>
+      n.id === id ? { ...n, data: { ...n.data, imageUrl } } : n,
     );
     set({ nodes });
     writeStorage(nodes, get().edges);

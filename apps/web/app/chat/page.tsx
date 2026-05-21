@@ -19,6 +19,11 @@ export default function ChatPage() {
   const { user, token, isAuthenticated, isLoading, logout } = useAuth();
   const { bubbleColor, chatBg, fontSize } = useChatTheme();
   const [themeOpen, setThemeOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const chatUser = user
     ? {
@@ -57,7 +62,7 @@ export default function ChatPage() {
     logout();
   };
 
-  if (isLoading || !isAuthenticated) return null;
+  if (!mounted || isLoading || !isAuthenticated) return null;
 
   const statusColor =
     status === "connected"

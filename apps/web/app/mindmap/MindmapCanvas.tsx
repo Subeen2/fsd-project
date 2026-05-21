@@ -37,6 +37,7 @@ function Canvas() {
   const { screenToFlowPosition } = useReactFlow();
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddByInput = useCallback(() => {
     const label = inputText.trim();
@@ -61,6 +62,25 @@ function Canvas() {
   const handleClearAll = useCallback(() => {
     if (window.confirm("마인드맵을 초기화할까요?")) clearAll();
   }, [clearAll]);
+
+  const handleImageFile = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const url = ev.target?.result as string;
+        addNode(
+          "",
+          { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
+          url,
+        );
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
+    },
+    [addNode],
+  );
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -118,6 +138,21 @@ function Canvas() {
           }}
         >
           추가
+        </button>
+        <span style={{ width: 1, height: 20, backgroundColor: "#e5e7eb" }} />
+        <button
+          onClick={() => imageInputRef.current?.click()}
+          style={{
+            padding: "5px 12px",
+            borderRadius: "6px",
+            backgroundColor: "transparent",
+            color: "#6b7280",
+            border: "1px solid #e5e7eb",
+            cursor: "pointer",
+            fontSize: "13px",
+          }}
+        >
+          🖼️ 이미지
         </button>
         <span style={{ width: 1, height: 20, backgroundColor: "#e5e7eb" }} />
         <button
@@ -206,6 +241,14 @@ function Canvas() {
           </p>
         </div>
       )}
+
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleImageFile}
+      />
     </div>
   );
 }
