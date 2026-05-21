@@ -27,7 +27,7 @@ import "@xyflow/react/dist/style.css";
 type NodeData = { label: string } & Record<string, unknown>;
 type MindmapNode = Node<NodeData, "mindmap">;
 
-function DemoNode({ id, data, selected }: NodeProps<MindmapNode>) {
+function DemoNode({ data, selected }: NodeProps<MindmapNode>) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(data.label);
 
