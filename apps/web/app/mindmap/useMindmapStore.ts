@@ -13,7 +13,64 @@ import type {
   NodeChange,
 } from "@xyflow/react";
 
-export type MindmapNodeData = { label: string } & Record<string, unknown>;
+export const NODE_COLORS = [
+  {
+    id: "white",
+    bg: "#ffffff",
+    border: "#e5e7eb",
+    text: "#111827",
+    label: "기본",
+  },
+  {
+    id: "blue",
+    bg: "#dbeafe",
+    border: "#93c5fd",
+    text: "#1e40af",
+    label: "파란색",
+  },
+  {
+    id: "purple",
+    bg: "#ede9fe",
+    border: "#c4b5fd",
+    text: "#5b21b6",
+    label: "보라색",
+  },
+  {
+    id: "green",
+    bg: "#dcfce7",
+    border: "#86efac",
+    text: "#166534",
+    label: "초록색",
+  },
+  {
+    id: "rose",
+    bg: "#ffe4e6",
+    border: "#fda4af",
+    text: "#9f1239",
+    label: "빨간색",
+  },
+  {
+    id: "orange",
+    bg: "#ffedd5",
+    border: "#fdba74",
+    text: "#9a3412",
+    label: "주황색",
+  },
+  {
+    id: "yellow",
+    bg: "#fef9c3",
+    border: "#fde047",
+    text: "#854d0e",
+    label: "노란색",
+  },
+] as const;
+
+export type NodeColorId = (typeof NODE_COLORS)[number]["id"];
+
+export type MindmapNodeData = {
+  label: string;
+  color?: NodeColorId;
+} & Record<string, unknown>;
 export type MindmapNode = Node<MindmapNodeData, "mindmap">;
 
 type Serialized = {
@@ -82,6 +139,7 @@ interface MindmapState {
   onConnect: OnConnect;
   addNode: (label: string, position: { x: number; y: number }) => void;
   updateNodeLabel: (id: string, label: string) => void;
+  updateNodeColor: (id: string, color: NodeColorId) => void;
   removeNode: (id: string) => void;
   clearAll: () => void;
 }
@@ -138,6 +196,14 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
   updateNodeLabel: (id, label) => {
     const nodes = get().nodes.map((n) =>
       n.id === id ? { ...n, data: { ...n.data, label } } : n,
+    );
+    set({ nodes });
+    writeStorage(nodes, get().edges);
+  },
+
+  updateNodeColor: (id, color) => {
+    const nodes = get().nodes.map((n) =>
+      n.id === id ? { ...n, data: { ...n.data, color } } : n,
     );
     set({ nodes });
     writeStorage(nodes, get().edges);
