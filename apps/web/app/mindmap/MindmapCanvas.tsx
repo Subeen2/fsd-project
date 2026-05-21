@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -27,6 +27,19 @@ function Canvas() {
     clearAll,
   } = useMindmapStore();
   const { screenToFlowPosition } = useReactFlow();
+  const [inputText, setInputText] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleAddByInput = useCallback(() => {
+    const label = inputText.trim();
+    if (!label) return;
+    addNode(label, {
+      x: Math.random() * 400 + 100,
+      y: Math.random() * 300 + 100,
+    });
+    setInputText("");
+    inputRef.current?.focus();
+  }, [inputText, addNode]);
 
   const onDoubleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -62,6 +75,43 @@ function Canvas() {
           whiteSpace: "nowrap",
         }}
       >
+        {/* 텍스트 입력 후 추가 */}
+        <input
+          ref={inputRef}
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAddByInput();
+          }}
+          placeholder="노드 텍스트 입력..."
+          style={{
+            padding: "5px 10px",
+            borderRadius: "6px",
+            border: "1px solid #e5e7eb",
+            fontSize: "13px",
+            outline: "none",
+            width: "160px",
+            color: "#111827",
+          }}
+        />
+        <button
+          onClick={handleAddByInput}
+          disabled={!inputText.trim()}
+          style={{
+            padding: "5px 12px",
+            borderRadius: "6px",
+            backgroundColor: inputText.trim() ? "#2563eb" : "#e5e7eb",
+            color: inputText.trim() ? "#fff" : "#9ca3af",
+            border: "none",
+            cursor: inputText.trim() ? "pointer" : "default",
+            fontSize: "13px",
+            fontWeight: 500,
+            transition: "background-color 0.1s",
+          }}
+        >
+          추가
+        </button>
+        <span style={{ width: 1, height: 20, backgroundColor: "#e5e7eb" }} />
         <button
           onClick={() =>
             addNode("새 노드", {
@@ -72,15 +122,14 @@ function Canvas() {
           style={{
             padding: "5px 12px",
             borderRadius: "6px",
-            backgroundColor: "#2563eb",
-            color: "#fff",
-            border: "none",
+            backgroundColor: "transparent",
+            color: "#6b7280",
+            border: "1px solid #e5e7eb",
             cursor: "pointer",
             fontSize: "13px",
-            fontWeight: 500,
           }}
         >
-          + 노드 추가
+          빈 노드
         </button>
         <span style={{ width: 1, height: 20, backgroundColor: "#e5e7eb" }} />
         <button
