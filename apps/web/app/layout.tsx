@@ -7,8 +7,8 @@ import { NavLinks } from "./NavLinks";
 
 export const metadata: Metadata = {
   title: {
-    default: "FSD Project",
-    template: "%s | FSD Project",
+    default: "Mindware",
+    template: "%s | Mindware",
   },
   description: "Full-Stack Delivery monorepo project",
 };

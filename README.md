@@ -1,4 +1,4 @@
-# FSD Project
+# Mindwave
 
 풀스택 모노레포 보일러플레이트. Next.js 15 + WebSocket + 공유 디자인 시스템으로 구성된 프로덕션 수준의 시작점입니다.
 

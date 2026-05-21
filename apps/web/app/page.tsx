@@ -27,7 +27,7 @@ export default function HomePage() {
             letterSpacing: "-0.02em",
           }}
         >
-          FSD Project
+          Mindwave
         </h1>
         <p style={{ fontSize: 16, color: "#94a3b8", margin: "10px 0 0" }}>
           무엇을 시작할까요?
