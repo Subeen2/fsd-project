@@ -38,6 +38,10 @@ const config: StorybookConfig = {
         plugins: [pandacss()],
       },
     };
+    config.define = {
+      ...config.define,
+      "process.env": {},
+    };
     return config;
   },
   typescript: {
