@@ -74,55 +74,129 @@ export type MindmapNodeData = {
 } & Record<string, unknown>;
 export type MindmapNode = Node<MindmapNodeData, "mindmap">;
 
+export type Board = {
+  id: string;
+  name: string;
+  nodes: MindmapNode[];
+  edges: Edge[];
+};
+
+// ─── Storage ──────────────────────────────────────────────────────────────────
+
+type SerializedNode = {
+  id: string;
+  position: { x: number; y: number };
+  data: MindmapNodeData;
+};
+type SerializedEdge = { id: string; source: string; target: string };
+
 type Serialized = {
-  nodes: {
+  boards: {
     id: string;
-    position: { x: number; y: number };
-    data: MindmapNodeData;
+    name: string;
+    nodes: SerializedNode[];
+    edges: SerializedEdge[];
   }[];
-  edges: { id: string; source: string; target: string }[];
+  currentBoardId: string;
+};
+
+// Old single-board format — for migration
+type LegacySerialized = {
+  nodes: SerializedNode[];
+  edges: SerializedEdge[];
 };
 
 const STORAGE_KEY = "fsd-mindmap";
+const DEFAULT_BOARD_ID = "board-default";
 
-function readStorage(): { nodes: MindmapNode[]; edges: Edge[] } {
-  if (typeof window === "undefined") return { nodes: [], edges: [] };
+function hydrateBoard(b: Serialized["boards"][number]): Board {
+  return {
+    id: b.id,
+    name: b.name,
+    nodes: b.nodes.map((n) => ({
+      id: n.id,
+      type: "mindmap" as const,
+      position: n.position,
+      data: n.data,
+    })),
+    edges: b.edges.map((e) => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+    })),
+  };
+}
+
+function makeDefaultBoard(
+  nodes: MindmapNode[] = [],
+  edges: Edge[] = [],
+): Board {
+  return { id: DEFAULT_BOARD_ID, name: "보드 1", nodes, edges };
+}
+
+function readStorage(): { boards: Board[]; currentBoardId: string } {
+  if (typeof window === "undefined") {
+    return { boards: [makeDefaultBoard()], currentBoardId: DEFAULT_BOARD_ID };
+  }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { nodes: [], edges: [] };
-    const { nodes, edges } = JSON.parse(raw) as Serialized;
-    return {
-      nodes: nodes.map((n) => ({
-        id: n.id,
-        type: "mindmap" as const,
-        position: n.position,
-        data: n.data,
-      })),
-      edges: edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-      })),
-    };
+    if (!raw)
+      return { boards: [makeDefaultBoard()], currentBoardId: DEFAULT_BOARD_ID };
+
+    const parsed = JSON.parse(raw) as Serialized | LegacySerialized;
+
+    // Migrate legacy single-board format
+    if ("nodes" in parsed && !("boards" in parsed)) {
+      const legacy = parsed as LegacySerialized;
+      const board = makeDefaultBoard(
+        legacy.nodes.map((n) => ({
+          id: n.id,
+          type: "mindmap" as const,
+          position: n.position,
+          data: n.data,
+        })),
+        legacy.edges.map((e) => ({
+          id: e.id,
+          source: e.source,
+          target: e.target,
+        })),
+      );
+      return { boards: [board], currentBoardId: DEFAULT_BOARD_ID };
+    }
+
+    const s = parsed as Serialized;
+    const boards = s.boards.map(hydrateBoard);
+    if (boards.length === 0)
+      return { boards: [makeDefaultBoard()], currentBoardId: DEFAULT_BOARD_ID };
+    const validId =
+      boards.some((b) => b.id === s.currentBoardId) && s.currentBoardId
+        ? s.currentBoardId
+        : (boards[0]?.id ?? DEFAULT_BOARD_ID);
+    return { boards, currentBoardId: validId };
   } catch {
-    return { nodes: [], edges: [] };
+    return { boards: [makeDefaultBoard()], currentBoardId: DEFAULT_BOARD_ID };
   }
 }
 
-function writeStorage(nodes: MindmapNode[], edges: Edge[]) {
+function writeStorage(boards: Board[], currentBoardId: string) {
   if (typeof window === "undefined") return;
   try {
     const payload: Serialized = {
-      nodes: nodes.map((n) => ({
-        id: n.id,
-        position: n.position,
-        data: n.data,
+      boards: boards.map((b) => ({
+        id: b.id,
+        name: b.name,
+        nodes: b.nodes.map((n) => ({
+          id: n.id,
+          position: n.position,
+          data: n.data,
+        })),
+        edges: b.edges.map((e) => ({
+          id: e.id,
+          source: e.source,
+          target: e.target,
+        })),
       })),
-      edges: edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-      })),
+      currentBoardId,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {
@@ -130,11 +204,35 @@ function writeStorage(nodes: MindmapNode[], edges: Edge[]) {
   }
 }
 
+// Sync current board's nodes/edges into the boards array
+function syncCurrentBoard(
+  boards: Board[],
+  currentBoardId: string,
+  nodes: MindmapNode[],
+  edges: Edge[],
+): Board[] {
+  return boards.map((b) =>
+    b.id === currentBoardId ? { ...b, nodes, edges } : b,
+  );
+}
+
+// ─── Store ────────────────────────────────────────────────────────────────────
+
 let counter = Date.now();
 
 interface MindmapState {
+  boards: Board[];
+  currentBoardId: string;
   nodes: MindmapNode[];
   edges: Edge[];
+
+  // Board management
+  addBoard: () => void;
+  removeBoard: (id: string) => void;
+  renameBoard: (id: string, name: string) => void;
+  setCurrentBoard: (id: string) => void;
+
+  // Node / edge operations (on the current board)
   onNodesChange: OnNodesChange<MindmapNode>;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
@@ -151,42 +249,127 @@ interface MindmapState {
 }
 
 const initial = readStorage();
+const initialBoard = initial.boards.find(
+  (b) => b.id === initial.currentBoardId,
+)!;
 
 export const useMindmapStore = create<MindmapState>((set, get) => ({
-  nodes: initial.nodes,
-  edges: initial.edges,
+  boards: initial.boards,
+  currentBoardId: initial.currentBoardId,
+  nodes: initialBoard.nodes,
+  edges: initialBoard.edges,
+
+  // ── Board management ──────────────────────────────────────────────────────
+
+  addBoard: () => {
+    const { boards, currentBoardId, nodes, edges } = get();
+    const saved = syncCurrentBoard(boards, currentBoardId, nodes, edges);
+    const id = `board-${counter++}`;
+    const newBoard: Board = {
+      id,
+      name: `보드 ${saved.length + 1}`,
+      nodes: [],
+      edges: [],
+    };
+    const next = [...saved, newBoard];
+    set({ boards: next, currentBoardId: id, nodes: [], edges: [] });
+    writeStorage(next, id);
+  },
+
+  removeBoard: (id) => {
+    const { boards, currentBoardId, nodes, edges } = get();
+    if (boards.length <= 1) return; // always keep at least one
+    const saved = syncCurrentBoard(boards, currentBoardId, nodes, edges);
+    const next = saved.filter((b) => b.id !== id);
+    const nextId =
+      currentBoardId === id
+        ? (next[next.length - 1]?.id ?? next[0]?.id ?? DEFAULT_BOARD_ID)
+        : currentBoardId;
+    const nextBoard = next.find((b) => b.id === nextId)!;
+    set({
+      boards: next,
+      currentBoardId: nextId,
+      nodes: nextBoard.nodes,
+      edges: nextBoard.edges,
+    });
+    writeStorage(next, nextId);
+  },
+
+  renameBoard: (id, name) => {
+    const { boards } = get();
+    const next = boards.map((b) => (b.id === id ? { ...b, name } : b));
+    set({ boards: next });
+    writeStorage(next, get().currentBoardId);
+  },
+
+  setCurrentBoard: (id) => {
+    const { boards, currentBoardId, nodes, edges } = get();
+    if (id === currentBoardId) return;
+    const saved = syncCurrentBoard(boards, currentBoardId, nodes, edges);
+    const target = saved.find((b) => b.id === id);
+    if (!target) return;
+    set({
+      boards: saved,
+      currentBoardId: id,
+      nodes: target.nodes,
+      edges: target.edges,
+    });
+    writeStorage(saved, id);
+  },
+
+  // ── Node / edge operations ─────────────────────────────────────────────────
 
   onNodesChange: (changes: NodeChange<MindmapNode>[]) => {
+    const { nodes, edges, boards, currentBoardId } = get();
     const removedIds = changes
       .filter((c) => c.type === "remove")
       .map((c) => c.id);
-
-    const nodes = applyNodeChanges(changes, get().nodes);
-    const edges =
+    const nextNodes = applyNodeChanges(changes, nodes);
+    const nextEdges =
       removedIds.length > 0
-        ? get().edges.filter(
+        ? edges.filter(
             (e) =>
               !removedIds.includes(e.source) && !removedIds.includes(e.target),
           )
-        : get().edges;
-
-    set({ nodes, edges });
-    writeStorage(nodes, edges);
+        : edges;
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nextNodes,
+      nextEdges,
+    );
+    set({ nodes: nextNodes, edges: nextEdges, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   onEdgesChange: (changes) => {
-    const edges = applyEdgeChanges(changes, get().edges);
-    set({ edges });
-    writeStorage(get().nodes, edges);
+    const { edges, nodes, boards, currentBoardId } = get();
+    const nextEdges = applyEdgeChanges(changes, edges);
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nodes,
+      nextEdges,
+    );
+    set({ edges: nextEdges, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   onConnect: (connection) => {
-    const edges = rfAddEdge(connection, get().edges);
-    set({ edges });
-    writeStorage(get().nodes, edges);
+    const { edges, nodes, boards, currentBoardId } = get();
+    const nextEdges = rfAddEdge(connection, edges);
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nodes,
+      nextEdges,
+    );
+    set({ edges: nextEdges, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   addNode: (label, position, imageUrl) => {
+    const { nodes, edges, boards, currentBoardId } = get();
     const id = `node-${counter++}`;
     const node: MindmapNode = {
       id,
@@ -194,44 +377,80 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
       position,
       data: { label, ...(imageUrl ? { imageUrl } : {}) },
     };
-    const nodes = [...get().nodes, node];
-    set({ nodes });
-    writeStorage(nodes, get().edges);
+    const nextNodes = [...nodes, node];
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nextNodes,
+      edges,
+    );
+    set({ nodes: nextNodes, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   updateNodeLabel: (id, label) => {
-    const nodes = get().nodes.map((n) =>
+    const { nodes, edges, boards, currentBoardId } = get();
+    const nextNodes = nodes.map((n) =>
       n.id === id ? { ...n, data: { ...n.data, label } } : n,
     );
-    set({ nodes });
-    writeStorage(nodes, get().edges);
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nextNodes,
+      edges,
+    );
+    set({ nodes: nextNodes, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   updateNodeImage: (id, imageUrl) => {
-    const nodes = get().nodes.map((n) =>
+    const { nodes, edges, boards, currentBoardId } = get();
+    const nextNodes = nodes.map((n) =>
       n.id === id ? { ...n, data: { ...n.data, imageUrl } } : n,
     );
-    set({ nodes });
-    writeStorage(nodes, get().edges);
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nextNodes,
+      edges,
+    );
+    set({ nodes: nextNodes, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   updateNodeColor: (id, color) => {
-    const nodes = get().nodes.map((n) =>
+    const { nodes, edges, boards, currentBoardId } = get();
+    const nextNodes = nodes.map((n) =>
       n.id === id ? { ...n, data: { ...n.data, color } } : n,
     );
-    set({ nodes });
-    writeStorage(nodes, get().edges);
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nextNodes,
+      edges,
+    );
+    set({ nodes: nextNodes, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   removeNode: (id) => {
-    const nodes = get().nodes.filter((n) => n.id !== id);
-    const edges = get().edges.filter((e) => e.source !== id && e.target !== id);
-    set({ nodes, edges });
-    writeStorage(nodes, edges);
+    const { nodes, edges, boards, currentBoardId } = get();
+    const nextNodes = nodes.filter((n) => n.id !== id);
+    const nextEdges = edges.filter((e) => e.source !== id && e.target !== id);
+    const nextBoards = syncCurrentBoard(
+      boards,
+      currentBoardId,
+      nextNodes,
+      nextEdges,
+    );
+    set({ nodes: nextNodes, edges: nextEdges, boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 
   clearAll: () => {
-    set({ nodes: [], edges: [] });
-    writeStorage([], []);
+    const { boards, currentBoardId } = get();
+    const nextBoards = syncCurrentBoard(boards, currentBoardId, [], []);
+    set({ nodes: [], edges: [], boards: nextBoards });
+    writeStorage(nextBoards, currentBoardId);
   },
 }));
