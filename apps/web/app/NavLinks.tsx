@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const links = [
   { href: "/chat", label: "채팅" },
   { href: "/mindmap", label: "마인드맵" },
+  { href: "/todo", label: "할 일" },
 ];
 
 export function NavLinks() {

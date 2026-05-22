@@ -35,7 +35,14 @@ export default function HomePage() {
       </div>
 
       {/* 카드 선택 */}
-      <div style={{ display: "flex", gap: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 24,
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
         <Link href="/chat" style={{ textDecoration: "none" }}>
           <div
             style={{
@@ -147,6 +154,64 @@ export default function HomePage() {
                 }}
               >
                 아이디어를 구조화하세요
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/todo" style={{ textDecoration: "none" }}>
+          <div
+            style={{
+              width: 240,
+              height: 280,
+              backgroundColor: "#fff",
+              border: "1.5px solid #e2e8f0",
+              borderRadius: 20,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 20,
+              cursor: "pointer",
+              transition: "all 0.15s",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "#16a34a";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 8px 24px rgba(22,163,74,0.12)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(-4px)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "#e2e8f0";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 1px 4px rgba(0,0,0,0.06)";
+              (e.currentTarget as HTMLDivElement).style.transform =
+                "translateY(0)";
+            }}
+          >
+            <span style={{ fontSize: 56 }}>✅</span>
+            <div style={{ textAlign: "center" }}>
+              <p
+                style={{
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: "#0f172a",
+                  margin: 0,
+                }}
+              >
+                할 일
+              </p>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "#94a3b8",
+                  margin: "6px 0 0",
+                  lineHeight: 1.5,
+                }}
+              >
+                할 일과 체크리스트 관리
               </p>
             </div>
           </div>
