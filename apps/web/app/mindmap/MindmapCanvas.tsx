@@ -28,7 +28,13 @@ const TAB_COLORS = [
   { bg: "#fef9c3", border: "#fef08a", text: "#854d0e" },
   { bg: "#ffedd5", border: "#fed7aa", text: "#9a3412" },
   { bg: "#e0f2fe", border: "#bae6fd", text: "#075985" },
-];
+] as const;
+
+const DEFAULT_TAB_COLOR = TAB_COLORS[0];
+
+function getTabColor(idx: number) {
+  return TAB_COLORS[idx % TAB_COLORS.length] ?? DEFAULT_TAB_COLOR;
+}
 
 function BoardSidebar() {
   const {
@@ -92,7 +98,7 @@ function BoardSidebar() {
         {/* 인덱스 탭들 */}
         {boards.map((board, idx) => {
           const active = board.id === currentBoardId;
-          const color = TAB_COLORS[idx % TAB_COLORS.length];
+          const color = getTabColor(idx);
           return (
             <button
               key={board.id}
@@ -238,7 +244,7 @@ function BoardSidebar() {
         {boards.map((board, idx) => {
           const active = board.id === currentBoardId;
           const editing = editingId === board.id;
-          const color = TAB_COLORS[idx % TAB_COLORS.length];
+          const color = getTabColor(idx);
 
           return (
             <li

@@ -168,9 +168,10 @@ function readStorage(): { boards: Board[]; currentBoardId: string } {
     const boards = s.boards.map(hydrateBoard);
     if (boards.length === 0)
       return { boards: [makeDefaultBoard()], currentBoardId: DEFAULT_BOARD_ID };
-    const validId = boards.some((b) => b.id === s.currentBoardId)
-      ? s.currentBoardId
-      : boards[0].id;
+    const validId =
+      boards.some((b) => b.id === s.currentBoardId) && s.currentBoardId
+        ? s.currentBoardId
+        : (boards[0]?.id ?? DEFAULT_BOARD_ID);
     return { boards, currentBoardId: validId };
   } catch {
     return { boards: [makeDefaultBoard()], currentBoardId: DEFAULT_BOARD_ID };
@@ -281,7 +282,9 @@ export const useMindmapStore = create<MindmapState>((set, get) => ({
     const saved = syncCurrentBoard(boards, currentBoardId, nodes, edges);
     const next = saved.filter((b) => b.id !== id);
     const nextId =
-      currentBoardId === id ? next[next.length - 1].id : currentBoardId;
+      currentBoardId === id
+        ? (next[next.length - 1]?.id ?? next[0]?.id ?? DEFAULT_BOARD_ID)
+        : currentBoardId;
     const nextBoard = next.find((b) => b.id === nextId)!;
     set({
       boards: next,
