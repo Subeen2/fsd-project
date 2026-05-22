@@ -88,7 +88,13 @@ type SerializedNode = {
   position: { x: number; y: number };
   data: MindmapNodeData;
 };
-type SerializedEdge = { id: string; source: string; target: string };
+type SerializedEdge = {
+  id: string;
+  source: string;
+  target: string;
+  sourceHandle?: string | null;
+  targetHandle?: string | null;
+};
 
 type Serialized = {
   boards: {
@@ -123,6 +129,8 @@ function hydrateBoard(b: Serialized["boards"][number]): Board {
       id: e.id,
       source: e.source,
       target: e.target,
+      ...(e.sourceHandle != null ? { sourceHandle: e.sourceHandle } : {}),
+      ...(e.targetHandle != null ? { targetHandle: e.targetHandle } : {}),
     })),
   };
 }
@@ -194,6 +202,8 @@ function writeStorage(boards: Board[], currentBoardId: string) {
           id: e.id,
           source: e.source,
           target: e.target,
+          ...(e.sourceHandle != null ? { sourceHandle: e.sourceHandle } : {}),
+          ...(e.targetHandle != null ? { targetHandle: e.targetHandle } : {}),
         })),
       })),
       currentBoardId,

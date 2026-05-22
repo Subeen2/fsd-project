@@ -87,7 +87,14 @@ export function MindmapNodeComponent({
         <Handle
           type="target"
           position={Position.Top}
-          style={{ background: "#9ca3af", width: 8, height: 8 }}
+          id="tl"
+          style={{ background: "#9ca3af", width: 8, height: 8, left: 0 }}
+        />
+        <Handle
+          type="target"
+          position={Position.Top}
+          id="tr"
+          style={{ background: "#9ca3af", width: 8, height: 8, left: "100%" }}
         />
 
         {/* 이미지 영역 */}
@@ -220,7 +227,14 @@ export function MindmapNodeComponent({
         <Handle
           type="source"
           position={Position.Bottom}
-          style={{ background: "#9ca3af", width: 8, height: 8 }}
+          id="bl"
+          style={{ background: "#9ca3af", width: 8, height: 8, left: 0 }}
+        />
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id="br"
+          style={{ background: "#9ca3af", width: 8, height: 8, left: "100%" }}
         />
       </div>
 
