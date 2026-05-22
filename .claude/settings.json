@@ -27,6 +27,12 @@
             "if": "Bash(git commit*)",
             "command": "source ~/.nvm/nvm.sh 2>/dev/null; nvm use 20 --silent 2>/dev/null; pnpm lint > /tmp/fsd-lint.log 2>&1; EXIT=$?; if [ $EXIT -ne 0 ]; then cat /tmp/fsd-lint.log; printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Lint 실패 — 에러 수정 후 다시 커밋하세요. 로그: /tmp/fsd-lint.log\"}}'; fi",
             "statusMessage": "Linting before commit..."
+          },
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "source ~/.nvm/nvm.sh 2>/dev/null; nvm use 20 --silent 2>/dev/null; pnpm --filter @fsd/web typecheck > /tmp/fsd-typecheck.log 2>&1; EXIT=$?; if [ $EXIT -ne 0 ]; then cat /tmp/fsd-typecheck.log; printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"@fsd/web typecheck 실패 — 타입 에러 수정 후 다시 커밋하세요. 로그: /tmp/fsd-typecheck.log\"}}'; fi",
+            "statusMessage": "Type checking @fsd/web before commit..."
           }
         ]
       }

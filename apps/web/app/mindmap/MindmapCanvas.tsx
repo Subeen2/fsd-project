@@ -292,7 +292,8 @@ function BoardSidebar() {
                   onChange={(e) => setDraft(e.target.value)}
                   onBlur={() => commitRename(board.id)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") commitRename(board.id);
+                    if (e.key === "Enter" && !e.nativeEvent.isComposing)
+                      commitRename(board.id);
                     if (e.key === "Escape") setEditingId(null);
                   }}
                   onClick={(e) => e.stopPropagation()}
@@ -495,7 +496,8 @@ function Canvas() {
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") handleAddByInput();
+            if (e.key === "Enter" && !e.nativeEvent.isComposing)
+              handleAddByInput();
           }}
           placeholder="노드 텍스트 입력..."
           style={{
