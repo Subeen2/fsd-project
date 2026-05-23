@@ -52,6 +52,23 @@ interface ElPatch {
 let _uid = Date.now();
 const uid = () => `el-${_uid++}`;
 
+type ResizeHandle = "tl" | "tr" | "bl" | "br";
+
+interface ResizingState {
+  id: string;
+  handle: ResizeHandle;
+  startMx: number;
+  startMy: number;
+  orig: { x: number; y: number; w: number; h: number };
+}
+
+const RESIZE_CURSORS: Record<ResizeHandle, string> = {
+  tl: "nw-resize",
+  tr: "ne-resize",
+  bl: "sw-resize",
+  br: "se-resize",
+};
+
 const DEFAULT_ELEMENTS: CardEl[] = [
   {
     id: "t1",
@@ -93,7 +110,16 @@ interface ElRendererProps {
   onDoubleClick: (e: React.MouseEvent) => void;
   onTextChange: (v: string) => void;
   onTextBlur: () => void;
+  onResizeStart: (e: React.PointerEvent, handle: ResizeHandle) => void;
 }
+
+const HANDLES: ResizeHandle[] = ["tl", "tr", "bl", "br"];
+const handlePos: Record<ResizeHandle, React.CSSProperties> = {
+  tl: { top: 0, left: 0, transform: "translate(-50%, -50%)" },
+  tr: { top: 0, right: 0, transform: "translate(50%, -50%)" },
+  bl: { bottom: 0, left: 0, transform: "translate(-50%, 50%)" },
+  br: { bottom: 0, right: 0, transform: "translate(50%, 50%)" },
+};
 
 function ElRenderer({
   el,
@@ -103,6 +129,7 @@ function ElRenderer({
   onDoubleClick,
   onTextChange,
   onTextBlur,
+  onResizeStart,
 }: ElRendererProps) {
   const justifyContent =
     el.type === "text"
@@ -192,6 +219,30 @@ function ElRenderer({
           }}
         />
       )}
+
+      {/* Resize handles — visible only when selected */}
+      {selected &&
+        HANDLES.map((h) => (
+          <div
+            key={h}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              onResizeStart(e, h);
+            }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "absolute",
+              width: 9,
+              height: 9,
+              background: "#fff",
+              border: `2px solid ${ACCENT}`,
+              borderRadius: 2,
+              cursor: RESIZE_CURSORS[h],
+              zIndex: 10,
+              ...handlePos[h],
+            }}
+          />
+        ))}
     </div>
   );
 }
@@ -494,6 +545,7 @@ export function InviteEditor() {
     ox: number;
     oy: number;
   } | null>(null);
+  const [resizing, setResizing] = useState<ResizingState | null>(null);
   const [exporting, setExporting] = useState(false);
 
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -578,23 +630,80 @@ export function InviteEditor() {
     [els, editingId],
   );
 
+  const startResize = useCallback(
+    (e: React.PointerEvent, id: string, handle: ResizeHandle) => {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const el = els.find((el) => el.id === id);
+      if (!el) return;
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      setResizing({
+        id,
+        handle,
+        startMx: e.clientX - rect.left,
+        startMy: e.clientY - rect.top,
+        orig: { x: el.x, y: el.y, w: el.w, h: el.h },
+      });
+    },
+    [els],
+  );
+
   const onCanvasPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragging || !canvasRef.current) return;
-      const rect = canvasRef.current.getBoundingClientRect();
-      const el = els.find((el) => el.id === dragging.id);
-      if (!el) return;
-      const newX = Math.max(
-        0,
-        Math.min(e.clientX - rect.left - dragging.ox, CANVAS_W - el.w),
-      );
-      const newY = Math.max(
-        0,
-        Math.min(e.clientY - rect.top - dragging.oy, CANVAS_H - el.h),
-      );
-      updateEl(dragging.id, { x: newX, y: newY });
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      if (dragging) {
+        const el = els.find((el) => el.id === dragging.id);
+        if (!el) return;
+        const newX = Math.max(
+          0,
+          Math.min(e.clientX - rect.left - dragging.ox, CANVAS_W - el.w),
+        );
+        const newY = Math.max(
+          0,
+          Math.min(e.clientY - rect.top - dragging.oy, CANVAS_H - el.h),
+        );
+        updateEl(dragging.id, { x: newX, y: newY });
+      }
+
+      if (resizing) {
+        const MIN = 20;
+        const dx = e.clientX - rect.left - resizing.startMx;
+        const dy = e.clientY - rect.top - resizing.startMy;
+        const { x: sx, y: sy, w: sw, h: sh } = resizing.orig;
+        let nx = sx,
+          ny = sy,
+          nw = sw,
+          nh = sh;
+
+        switch (resizing.handle) {
+          case "br":
+            nw = Math.max(MIN, sw + dx);
+            nh = Math.max(MIN, sh + dy);
+            break;
+          case "bl":
+            nw = Math.max(MIN, sw - dx);
+            nx = sx + sw - nw;
+            nh = Math.max(MIN, sh + dy);
+            break;
+          case "tr":
+            nw = Math.max(MIN, sw + dx);
+            nh = Math.max(MIN, sh - dy);
+            ny = sy + sh - nh;
+            break;
+          case "tl":
+            nw = Math.max(MIN, sw - dx);
+            nx = sx + sw - nw;
+            nh = Math.max(MIN, sh - dy);
+            ny = sy + sh - nh;
+            break;
+        }
+
+        updateEl(resizing.id, { x: nx, y: ny, w: nw, h: nh });
+      }
     },
-    [dragging, els, updateEl],
+    [dragging, resizing, els, updateEl],
   );
 
   const exportPNG = useCallback(async () => {
@@ -748,7 +857,10 @@ export function InviteEditor() {
           <div
             ref={canvasRef}
             onPointerMove={onCanvasPointerMove}
-            onPointerUp={() => setDragging(null)}
+            onPointerUp={() => {
+              setDragging(null);
+              setResizing(null);
+            }}
             onClick={() => {
               setSelectedId(null);
               setEditingId(null);
@@ -760,11 +872,21 @@ export function InviteEditor() {
               backgroundColor: bgColor,
               boxShadow: "0 4px 32px rgba(0,0,0,0.14)",
               borderRadius: 8,
-              overflow: "hidden",
+              overflow: "visible",
               cursor: dragging ? "grabbing" : "default",
               flexShrink: 0,
             }}
           >
+            {/* clip inner content but allow handles to overflow */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: 8,
+                overflow: "hidden",
+                pointerEvents: "none",
+              }}
+            />
             {els.map((el) => (
               <ElRenderer
                 key={el.id}
@@ -781,6 +903,7 @@ export function InviteEditor() {
                 }}
                 onTextChange={(v) => updateEl(el.id, { content: v })}
                 onTextBlur={() => setEditingId(null)}
+                onResizeStart={(e, handle) => startResize(e, el.id, handle)}
               />
             ))}
           </div>
