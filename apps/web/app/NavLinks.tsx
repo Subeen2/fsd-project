@@ -7,6 +7,7 @@ const links = [
   { href: "/chat", label: "채팅" },
   { href: "/mindmap", label: "마인드맵" },
   { href: "/todo", label: "할 일" },
+  { href: "/invite", label: "초대장" },
 ];
 
 export function NavLinks() {
