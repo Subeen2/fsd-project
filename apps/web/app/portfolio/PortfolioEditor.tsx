@@ -27,6 +27,7 @@ interface TextEl extends BaseEl {
   fontWeight: FontWeight;
   fontFamily: FontFamily;
   textAlign: TextAlign;
+  url?: string;
 }
 
 interface ImgEl extends BaseEl {
@@ -56,6 +57,7 @@ interface ElPatch {
   src?: string;
   bgColor?: string;
   borderRadius?: number;
+  url?: string;
 }
 
 let _uid = Date.now() + 200000;
@@ -403,7 +405,7 @@ const DEFAULT_ELEMENTS: CardEl[] = [
     y: 286,
     w: 184,
     h: 14,
-    content: "title",
+    content: "projects",
     fontSize: 10,
     color: "#0f172a",
     fontWeight: "bold",
@@ -416,9 +418,24 @@ const DEFAULT_ELEMENTS: CardEl[] = [
     x: 382,
     y: 306,
     w: 184,
-    h: 84,
+    h: 20,
+    content: "프로젝트 이름",
+    fontSize: 9,
+    color: "#2563eb",
+    fontWeight: "bold",
+    fontFamily: "sans-serif",
+    textAlign: "left",
+    url: "https://github.com",
+  },
+  {
+    id: "pt17b",
+    type: "text",
+    x: 382,
+    y: 330,
+    w: 184,
+    h: 60,
     content:
-      "2018 내용을 입력하세요\n2019 내용을 입력하세요\n2021 내용을 입력하세요",
+      "프로젝트 설명을 입력하세요.\n사용 기술, 기여 내용 등을 적어주세요.",
     fontSize: 9,
     color: "#475569",
     fontWeight: "normal",
@@ -542,7 +559,7 @@ function ElRenderer({
               width: "100%",
               height: "100%",
               fontSize: el.fontSize,
-              color: el.color,
+              color: el.url ? "#2563eb" : el.color,
               fontWeight: el.fontWeight,
               fontFamily: el.fontFamily,
               textAlign: el.textAlign,
@@ -552,9 +569,22 @@ function ElRenderer({
               lineHeight: 1.4,
               wordBreak: "break-word",
               whiteSpace: "pre-wrap",
+              textDecoration: el.url ? "underline" : "none",
             }}
           >
             {el.content}
+            {el.url && (
+              <span
+                style={{
+                  marginLeft: 4,
+                  fontSize: el.fontSize * 0.8,
+                  opacity: 0.7,
+                  flexShrink: 0,
+                }}
+              >
+                🔗
+              </span>
+            )}
           </div>
         ))}
 
@@ -784,6 +814,29 @@ function PropertiesPanel({ el, onChange, onDelete }: PanelProps) {
                   <option value="monospace">Monospace</option>
                   <option value="cursive">Cursive</option>
                 </select>
+              </Section>
+
+              <Section label="링크 URL (PDF에서 클릭 가능)">
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={el.url ?? ""}
+                  onChange={(e) => onChange({ url: e.target.value })}
+                  style={inputBase}
+                />
+                {el.url && (
+                  <button
+                    onClick={() => onChange({ url: "" })}
+                    style={{
+                      ...inputBase,
+                      cursor: "pointer",
+                      color: "#dc2626",
+                      textAlign: "center",
+                    }}
+                  >
+                    링크 제거
+                  </button>
+                )}
               </Section>
             </>
           )}
@@ -1284,6 +1337,16 @@ export function PortfolioEditor() {
       );
       if (i > 0) pdf.addPage("a4", "landscape");
       pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
+      // Add clickable link annotations for text elements with URLs
+      const scaleX = 297 / CANVAS_W;
+      const scaleY = 210 / CANVAS_H;
+      for (const el of pages[i]!.elements) {
+        if (el.type === "text" && el.url) {
+          pdf.link(el.x * scaleX, el.y * scaleY, el.w * scaleX, el.h * scaleY, {
+            url: el.url,
+          });
+        }
+      }
     }
     pdf.save("portfolio.pdf");
     setPdfSaved(true);
