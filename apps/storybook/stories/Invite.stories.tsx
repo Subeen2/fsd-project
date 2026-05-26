@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
