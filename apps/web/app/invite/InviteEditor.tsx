@@ -613,6 +613,7 @@ export function InviteEditor() {
   const [resizing, setResizing] = useState<ResizingState | null>(null);
   const [exporting, setExporting] = useState(false);
   const [pdfSaved, setPdfSaved] = useState(false);
+  const [fileName, setFileName] = useState("invite");
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -869,7 +870,7 @@ export function InviteEditor() {
     }
     const shot = await html2canvas(el, { useCORS: true, scale: 2 });
     const link = document.createElement("a");
-    link.download = "invite.png";
+    link.download = `${fileName || "invite"}.png`;
     link.href = shot.toDataURL("image/png");
     link.click();
     setExporting(false);
@@ -896,7 +897,7 @@ export function InviteEditor() {
       if (i > 0) pdf.addPage([CANVAS_W, CANVAS_H], "l");
       pdf.addImage(imgData, "PNG", 0, 0, CANVAS_W, CANVAS_H);
     }
-    pdf.save("invite.pdf");
+    pdf.save(`${fileName || "invite"}.pdf`);
     setPdfSaved(true);
     setExporting(false);
   }, [pages]);
@@ -951,6 +952,23 @@ export function InviteEditor() {
           />
         </label>
         <div style={{ flex: 1 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <input
+            type="text"
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+            placeholder="파일명"
+            style={{
+              ...toolBtn,
+              width: 120,
+              padding: "7px 10px",
+              outline: "none",
+            }}
+          />
+          <span style={{ fontSize: 12, color: "#9ca3af", flexShrink: 0 }}>
+            .png / .pdf
+          </span>
+        </div>
         <button
           onClick={exportPNG}
           disabled={exporting}
