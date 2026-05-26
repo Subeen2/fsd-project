@@ -11,9 +11,12 @@
     "@fsd/features": "workspace:*",
     "@fsd/shared": "workspace:*",
     "@fsd/ui": "workspace:*",
+    "@types/three": "^0.184.1",
     "@xyflow/react": "^12.3.6",
+    "lil-gui": "^0.21.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.4",
