@@ -1072,14 +1072,18 @@ export function PortfolioEditor() {
 
   const addPage = useCallback(() => {
     const id = pageUid();
-    const freshEls: CardEl[] = DEFAULT_ELEMENTS.map((el) => ({
-      ...el,
-      id: uid(),
-    }));
-    setPages((prev) => [
-      ...prev,
-      { id, bgColor: "#dce8f0", elements: freshEls },
-    ]);
+    setPages((prev) => {
+      const newPageNum = prev.length + 1;
+      const freshEls: CardEl[] = DEFAULT_ELEMENTS.map((el) => {
+        const newEl = { ...el, id: uid() };
+        // Update the page number text in the footer
+        if (el.type === "text" && el.x === 564 && el.y === 408) {
+          return { ...newEl, content: String(newPageNum) } as CardEl;
+        }
+        return newEl;
+      });
+      return [...prev, { id, bgColor: "#dce8f0", elements: freshEls }];
+    });
     setCurrentPageId(id);
     setSelectedId(null);
     setEditingId(null);
