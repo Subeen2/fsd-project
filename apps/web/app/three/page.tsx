@@ -1,9 +1,7 @@
-import dynamic from "next/dynamic";
-
-const ThreeDemo = dynamic(() => import("./ThreeDemo"), { ssr: false });
+import ThreeDemoClient from "./ThreeDemoClient";
 
 export const metadata = { title: "Three.js Demo" };
 
 export default function Page() {
-  return <ThreeDemo />;
+  return <ThreeDemoClient />;
 }
