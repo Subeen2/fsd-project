@@ -1,0 +1,640 @@
+import type { Meta, StoryObj } from "@storybook/react";
+import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+type DemoId = "cube" | "lighting" | "texture" | "particles" | "wave";
+
+const DEMOS: { id: DemoId; label: string }[] = [
+  { id: "cube", label: "01. 회전하는 큐브" },
+  { id: "lighting", label: "02. 조명 + 재질" },
+  { id: "texture", label: "03. 텍스처 매핑" },
+  { id: "particles", label: "04. 파티클" },
+  { id: "wave", label: "05. 웨이브 파티클" },
+];
+
+const DESC: Record<DemoId, { title: string; points: string[] }> = {
+  cube: {
+    title: "Scene · Camera · Renderer",
+    points: [
+      "WebGLRenderer로 canvas에 렌더링",
+      "PerspectiveCamera — fov, aspect, near/far",
+      "BoxGeometry + MeshBasicMaterial",
+      "requestAnimationFrame 루프로 애니메이션",
+    ],
+  },
+  lighting: {
+    title: "조명 & PBR 재질",
+    points: [
+      "MeshStandardMaterial — 물리 기반 렌더링",
+      "AmbientLight — 전체 균일 조명",
+      "PointLight — 점 광원 (위치·색상·강도)",
+      "DirectionalLight — 방향성 조명",
+    ],
+  },
+  texture: {
+    title: "텍스처 매핑",
+    points: [
+      "TextureLoader로 이미지 로드",
+      "map — 기본 색상 텍스처",
+      "UV 좌표로 이미지 → 3D 표면 매핑",
+      "SphereGeometry로 구체에 적용",
+    ],
+  },
+  particles: {
+    title: "파티클 시스템",
+    points: [
+      "BufferGeometry + Float32Array로 좌표 직접 설정",
+      "PointsMaterial — 점 크기·색상·투명도",
+      "Points 오브젝트로 수천 개 점 한번에 렌더",
+      "마우스 위치에 따라 회전 반응",
+    ],
+  },
+  wave: {
+    title: "웨이브 파티클",
+    points: [
+      "격자(grid) 형태로 파티클 배치",
+      "sin/cos 함수로 시간 기반 Y 위치 변동",
+      "BufferGeometry attributes 매 프레임 업데이트",
+      "needsUpdate = true 로 GPU에 변경 반영",
+    ],
+  },
+};
+
+// ─── Demo Init Functions ──────────────────────────────────────────────────────
+function initCube(canvas: HTMLCanvasElement) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#0f172a");
+
+  const camera = new THREE.PerspectiveCamera(
+    60,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    100,
+  );
+  camera.position.z = 3;
+
+  const geometry = new THREE.BoxGeometry(1.4, 1.4, 1.4);
+  const material = new THREE.MeshBasicMaterial({
+    color: "#2563eb",
+    wireframe: true,
+  });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+  scene.add(new THREE.AxesHelper(2));
+
+  let rafId = 0;
+  const animate = () => {
+    rafId = requestAnimationFrame(animate);
+    cube.rotation.x += 0.008;
+    cube.rotation.y += 0.012;
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  return () => {
+    cancelAnimationFrame(rafId);
+    geometry.dispose();
+    material.dispose();
+    renderer.dispose();
+  };
+}
+
+function initLighting(canvas: HTMLCanvasElement) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#0f172a");
+
+  const camera = new THREE.PerspectiveCamera(
+    60,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    100,
+  );
+  camera.position.set(0, 1.5, 4);
+  camera.lookAt(0, 0, 0);
+
+  scene.add(new THREE.AmbientLight("#ffffff", 0.3));
+
+  const point = new THREE.PointLight("#60a5fa", 80, 20);
+  point.position.set(2, 3, 2);
+  point.castShadow = true;
+  scene.add(point);
+
+  const dir = new THREE.DirectionalLight("#f0abfc", 1.5);
+  dir.position.set(-3, 4, 1);
+  scene.add(dir);
+
+  const sphereGeo = new THREE.SphereGeometry(0.9, 32, 32);
+  const sphereMat = new THREE.MeshStandardMaterial({
+    color: "#3b82f6",
+    roughness: 0.3,
+    metalness: 0.6,
+  });
+  const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+  sphere.castShadow = true;
+  scene.add(sphere);
+
+  const torusGeo = new THREE.TorusGeometry(1.6, 0.12, 16, 80);
+  const torusMat = new THREE.MeshStandardMaterial({
+    color: "#a78bfa",
+    roughness: 0.4,
+    metalness: 0.5,
+  });
+  const torus = new THREE.Mesh(torusGeo, torusMat);
+  scene.add(torus);
+
+  let rafId = 0;
+  let t = 0;
+  const animate = () => {
+    rafId = requestAnimationFrame(animate);
+    t += 0.01;
+    torus.rotation.x = t * 0.5;
+    torus.rotation.y = t;
+    point.position.x = Math.sin(t) * 3;
+    point.position.z = Math.cos(t) * 3;
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  return () => {
+    cancelAnimationFrame(rafId);
+    sphereGeo.dispose();
+    sphereMat.dispose();
+    torusGeo.dispose();
+    torusMat.dispose();
+    renderer.dispose();
+  };
+}
+
+function initTexture(canvas: HTMLCanvasElement) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#0f172a");
+
+  const camera = new THREE.PerspectiveCamera(
+    60,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    100,
+  );
+  camera.position.z = 3;
+
+  scene.add(new THREE.AmbientLight("#ffffff", 0.6));
+  const dir = new THREE.DirectionalLight("#ffffff", 1.2);
+  dir.position.set(3, 5, 3);
+  scene.add(dir);
+
+  const texCanvas = document.createElement("canvas");
+  texCanvas.width = 256;
+  texCanvas.height = 256;
+  const ctx = texCanvas.getContext("2d")!;
+
+  const grad = ctx.createLinearGradient(0, 0, 256, 256);
+  grad.addColorStop(0, "#2563eb");
+  grad.addColorStop(0.5, "#7c3aed");
+  grad.addColorStop(1, "#0ea5e9");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 256);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.3)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 256; i += 32) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, 256);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(256, i);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "white";
+  ctx.font = "bold 32px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("THREE.JS", 128, 128);
+  ctx.font = "16px sans-serif";
+  ctx.fillText("Texture Mapping", 128, 160);
+
+  const texture = new THREE.CanvasTexture(texCanvas);
+  const geo = new THREE.SphereGeometry(1.2, 64, 64);
+  const mat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.5 });
+  const sphere = new THREE.Mesh(geo, mat);
+  scene.add(sphere);
+
+  let rafId = 0;
+  const animate = () => {
+    rafId = requestAnimationFrame(animate);
+    sphere.rotation.y += 0.005;
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  return () => {
+    cancelAnimationFrame(rafId);
+    geo.dispose();
+    mat.dispose();
+    texture.dispose();
+    renderer.dispose();
+  };
+}
+
+function initParticles(canvas: HTMLCanvasElement) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#0f172a");
+
+  const camera = new THREE.PerspectiveCamera(
+    60,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    100,
+  );
+  camera.position.z = 5;
+
+  const COUNT = 2000;
+  const positions = new Float32Array(COUNT * 3);
+  const colors = new Float32Array(COUNT * 3);
+  const color = new THREE.Color();
+
+  for (let i = 0; i < COUNT; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 10;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+    color.setHSL(Math.random() * 0.3 + 0.55, 0.9, 0.65);
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.06,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.9,
+  });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  const mouse = { x: 0, y: 0 };
+  const onMouseMove = (e: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    mouse.y = -((e.clientY - rect.top) / rect.height - 0.5) * 2;
+  };
+  canvas.addEventListener("mousemove", onMouseMove);
+
+  let rafId = 0;
+  const animate = () => {
+    rafId = requestAnimationFrame(animate);
+    points.rotation.y += (mouse.x * 0.5 - points.rotation.y) * 0.05;
+    points.rotation.x += (mouse.y * 0.3 - points.rotation.x) * 0.05;
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  return () => {
+    cancelAnimationFrame(rafId);
+    canvas.removeEventListener("mousemove", onMouseMove);
+    geo.dispose();
+    mat.dispose();
+    renderer.dispose();
+  };
+}
+
+function initWave(canvas: HTMLCanvasElement) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#0f172a");
+
+  const camera = new THREE.PerspectiveCamera(
+    60,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    100,
+  );
+  camera.position.set(0, 6, 10);
+  camera.lookAt(0, 0, 0);
+
+  const COLS = 40;
+  const ROWS = 40;
+  const GAP = 0.22;
+  const COUNT = COLS * ROWS;
+
+  const positions = new Float32Array(COUNT * 3);
+  const colors = new Float32Array(COUNT * 3);
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const i = r * COLS + c;
+      positions[i * 3] = (c - COLS / 2) * GAP;
+      positions[i * 3 + 1] = 0;
+      positions[i * 3 + 2] = (r - ROWS / 2) * GAP;
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.PointsMaterial({ size: 0.07, vertexColors: true });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  const posAttr = geo.getAttribute("position") as THREE.BufferAttribute;
+  const colAttr = geo.getAttribute("color") as THREE.BufferAttribute;
+  const color = new THREE.Color();
+
+  let rafId = 0;
+  let t = 0;
+  const animate = () => {
+    rafId = requestAnimationFrame(animate);
+    t += 0.03;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const i = r * COLS + c;
+        const x = posAttr.getX(i);
+        const z = posAttr.getZ(i);
+        const y = Math.sin(x * 2 + t) * 0.4 + Math.cos(z * 2 + t * 0.8) * 0.4;
+        posAttr.setY(i, y);
+        const h = (y + 0.8) / 1.6;
+        color.setHSL(0.55 + h * 0.2, 0.9, 0.4 + h * 0.4);
+        colAttr.setXYZ(i, color.r, color.g, color.b);
+      }
+    }
+    posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+    points.rotation.y += 0.003;
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  return () => {
+    cancelAnimationFrame(rafId);
+    geo.dispose();
+    mat.dispose();
+    renderer.dispose();
+  };
+}
+
+const INIT_FN: Record<DemoId, (canvas: HTMLCanvasElement) => () => void> = {
+  cube: initCube,
+  lighting: initLighting,
+  texture: initTexture,
+  particles: initParticles,
+  wave: initWave,
+};
+
+// ─── ThreeDemoViewer Component ────────────────────────────────────────────────
+function ThreeDemoViewer({ defaultDemo }: { defaultDemo: DemoId }) {
+  const [activeDemo, setActiveDemo] = useState<DemoId>(defaultDemo);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    cleanupRef.current?.();
+
+    const container = canvas.parentElement!;
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+
+    cleanupRef.current = INIT_FN[activeDemo](canvas);
+
+    return () => {
+      cleanupRef.current?.();
+    };
+  }, [activeDemo]);
+
+  const desc = DESC[activeDemo];
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        height: "600px",
+        backgroundColor: "#0f172a",
+        color: "#e2e8f0",
+        fontFamily: "monospace",
+        borderRadius: 12,
+        overflow: "hidden",
+        border: "1px solid #1e293b",
+      }}
+    >
+      {/* 사이드바 */}
+      <aside
+        style={{
+          width: 200,
+          borderRight: "1px solid #1e293b",
+          display: "flex",
+          flexDirection: "column",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            padding: "16px 14px 10px",
+            borderBottom: "1px solid #1e293b",
+          }}
+        >
+          <div
+            style={{ fontSize: 10, color: "#64748b", letterSpacing: "0.1em" }}
+          >
+            THREE.JS
+          </div>
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: "#f8fafc",
+              marginTop: 2,
+            }}
+          >
+            Interactive Demo
+          </div>
+        </div>
+        <nav style={{ flex: 1, padding: "6px 0" }}>
+          {DEMOS.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => setActiveDemo(d.id)}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "9px 14px",
+                textAlign: "left",
+                background: activeDemo === d.id ? "#1e293b" : "transparent",
+                border: "none",
+                borderLeft: `3px solid ${activeDemo === d.id ? "#2563eb" : "transparent"}`,
+                color: activeDemo === d.id ? "#60a5fa" : "#94a3b8",
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              {d.label}
+            </button>
+          ))}
+        </nav>
+        {/* 학습 포인트 패널 */}
+        <div style={{ padding: 14, borderTop: "1px solid #1e293b" }}>
+          <div
+            style={{
+              fontSize: 10,
+              color: "#60a5fa",
+              fontWeight: 700,
+              marginBottom: 6,
+            }}
+          >
+            {desc.title}
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 12 }}>
+            {desc.points.map((p, i) => (
+              <li
+                key={i}
+                style={{
+                  fontSize: 10,
+                  color: "#64748b",
+                  marginBottom: 4,
+                  lineHeight: 1.5,
+                }}
+              >
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+
+      {/* 캔버스 */}
+      <main style={{ flex: 1, position: "relative" }}>
+        <canvas
+          ref={canvasRef}
+          style={{ display: "block", width: "100%", height: "100%" }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            padding: "3px 8px",
+            background: "rgba(15,23,42,0.7)",
+            border: "1px solid #1e293b",
+            borderRadius: 5,
+            fontSize: 10,
+            color: "#64748b",
+          }}
+        >
+          {DEMOS.find((d) => d.id === activeDemo)?.label}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// ─── Meta ─────────────────────────────────────────────────────────────────────
+const meta = {
+  title: "3D/ThreeJS Demo",
+  component: ThreeDemoViewer,
+  parameters: {
+    layout: "padded",
+    docs: {
+      description: {
+        component:
+          "순수 Three.js로 구현한 5가지 인터랙티브 3D 데모. 각 데모에서 Three.js 핵심 개념을 학습할 수 있습니다.",
+      },
+    },
+  },
+} satisfies Meta<typeof ThreeDemoViewer>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+// ─── Stories ──────────────────────────────────────────────────────────────────
+export const 회전하는큐브: Story = {
+  args: { defaultDemo: "cube" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Scene, Camera, Renderer의 기본 구조. 와이어프레임 큐브와 AxesHelper(X=빨강, Y=초록, Z=파랑)로 3D 좌표계를 시각화합니다.",
+      },
+    },
+  },
+};
+
+export const 조명과재질: Story = {
+  args: { defaultDemo: "lighting" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "물리 기반 렌더링(PBR) 재질과 세 가지 조명(Ambient, Point, Directional)의 조합. 움직이는 PointLight가 반사 효과를 만듭니다.",
+      },
+    },
+  },
+};
+
+export const 텍스처매핑: Story = {
+  args: { defaultDemo: "texture" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "CanvasTexture로 그라디언트+격자 텍스처를 동적으로 생성해 구체에 UV 매핑합니다. 외부 이미지 없이 텍스처를 만드는 방법을 보여줍니다.",
+      },
+    },
+  },
+};
+
+export const 파티클: Story = {
+  args: { defaultDemo: "particles" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "BufferGeometry로 2000개 파티클을 생성하고 마우스 위치에 반응해 회전합니다. 마우스를 캔버스 위에서 움직여보세요.",
+      },
+    },
+  },
+};
+
+export const 웨이브파티클: Story = {
+  args: { defaultDemo: "wave" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "40×40 격자 파티클을 sin/cos 함수로 매 프레임 Y값을 업데이트해 물결 애니메이션을 만듭니다. needsUpdate 패턴의 핵심을 보여줍니다.",
+      },
+    },
+  },
+};
+
+export const 전체데모: Story = {
+  args: { defaultDemo: "cube" },
+  parameters: {
+    docs: {
+      description: {
+        story: "사이드바에서 원하는 데모를 선택해 전환할 수 있습니다.",
+      },
+    },
+  },
+};

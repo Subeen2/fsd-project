@@ -9,6 +9,7 @@ const links = [
   { href: "/todo", label: "할 일" },
   { href: "/invite", label: "초대장" },
   { href: "/portfolio", label: "포트폴리오" },
+  { href: "/three", label: "Three.js" },
 ];
 
 export function NavLinks() {
