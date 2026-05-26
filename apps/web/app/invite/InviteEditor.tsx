@@ -533,11 +533,76 @@ const inputBase: React.CSSProperties = {
   background: "#fff",
 };
 
+// ─── Page type & capture helper ───────────────────────────────────────────────
+
+interface Page {
+  id: string;
+  bgColor: string;
+  elements: CardEl[];
+}
+
+async function capturePageAsDataUrl(
+  page: Page,
+  html2canvas: (
+    el: HTMLElement,
+    opts?: { useCORS?: boolean; scale?: number },
+  ) => Promise<HTMLCanvasElement>,
+): Promise<string> {
+  const container = document.createElement("div");
+  container.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${CANVAS_W}px;height:${CANVAS_H}px;background-color:${page.bgColor};overflow:hidden;`;
+
+  page.elements.forEach((el) => {
+    const div = document.createElement("div");
+    div.style.cssText = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
+
+    if (el.type === "text") {
+      div.style.fontSize = `${el.fontSize}px`;
+      div.style.color = el.color;
+      div.style.fontWeight = el.fontWeight;
+      div.style.fontFamily = el.fontFamily;
+      div.style.textAlign = el.textAlign;
+      div.style.display = "flex";
+      div.style.alignItems = "center";
+      div.style.justifyContent =
+        el.textAlign === "left"
+          ? "flex-start"
+          : el.textAlign === "right"
+            ? "flex-end"
+            : "center";
+      div.style.wordBreak = "break-word";
+      div.style.whiteSpace = "pre-wrap";
+      div.style.lineHeight = "1.4";
+      div.textContent = el.content;
+    } else {
+      const img = document.createElement("img");
+      img.src = el.src;
+      img.style.cssText =
+        "width:100%;height:100%;object-fit:contain;display:block;";
+      div.appendChild(img);
+    }
+
+    container.appendChild(div);
+  });
+
+  document.body.appendChild(container);
+  try {
+    const shot = await html2canvas(container, { useCORS: true, scale: 2 });
+    return shot.toDataURL("image/png");
+  } finally {
+    document.body.removeChild(container);
+  }
+}
+
 // ─── Main Editor ──────────────────────────────────────────────────────────────
 
+let _pageUid = Date.now() + 100000;
+const pageUid = () => `pg-${_pageUid++}`;
+
 export function InviteEditor() {
-  const [els, setEls] = useState<CardEl[]>(DEFAULT_ELEMENTS);
-  const [bgColor, setBgColor] = useState("#fff9f0");
+  const [pages, setPages] = useState<Page[]>([
+    { id: "pg-1", bgColor: "#fff9f0", elements: DEFAULT_ELEMENTS },
+  ]);
+  const [currentPageId, setCurrentPageId] = useState("pg-1");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [dragging, setDragging] = useState<{
@@ -547,25 +612,100 @@ export function InviteEditor() {
   } | null>(null);
   const [resizing, setResizing] = useState<ResizingState | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [pdfSaved, setPdfSaved] = useState(false);
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const currentPage = pages.find((p) => p.id === currentPageId) ?? pages[0]!;
+  const els = currentPage.elements;
+  const bgColor = currentPage.bgColor;
   const selected = els.find((e) => e.id === selectedId) ?? null;
 
-  const updateEl = useCallback((id: string, patch: ElPatch) => {
-    setEls((prev) =>
-      prev.map((e) => (e.id === id ? ({ ...e, ...patch } as CardEl) : e)),
-    );
-  }, []);
+  // ── Page helpers ──────────────────────────────────────────────────────────
 
-  const deleteEl = useCallback((id: string) => {
-    setEls((prev) => prev.filter((e) => e.id !== id));
+  const setCurrentPageField = useCallback(
+    (patch: Partial<Omit<Page, "id">>) => {
+      setPages((prev) =>
+        prev.map((p) => (p.id === currentPageId ? { ...p, ...patch } : p)),
+      );
+    },
+    [currentPageId],
+  );
+
+  const addPage = useCallback(() => {
+    const id = pageUid();
+    setPages((prev) => [...prev, { id, bgColor: "#ffffff", elements: [] }]);
+    setCurrentPageId(id);
     setSelectedId(null);
     setEditingId(null);
   }, []);
 
-  const addText = () => {
+  const removePage = useCallback(
+    (id: string) => {
+      setPages((prev) => {
+        if (prev.length <= 1) return prev;
+        const idx = prev.findIndex((p) => p.id === id);
+        const next = prev.filter((p) => p.id !== id);
+        if (id === currentPageId) {
+          setCurrentPageId(next[Math.max(0, idx - 1)]?.id ?? next[0]?.id ?? "");
+          setSelectedId(null);
+          setEditingId(null);
+        }
+        return next;
+      });
+    },
+    [currentPageId],
+  );
+
+  const switchPage = useCallback(
+    (id: string) => {
+      if (id === currentPageId) return;
+      setCurrentPageId(id);
+      setSelectedId(null);
+      setEditingId(null);
+      setDragging(null);
+      setResizing(null);
+    },
+    [currentPageId],
+  );
+
+  // ── Element helpers ───────────────────────────────────────────────────────
+
+  const updateEl = useCallback(
+    (id: string, patch: ElPatch) => {
+      setPages((prev) =>
+        prev.map((p) =>
+          p.id === currentPageId
+            ? {
+                ...p,
+                elements: p.elements.map((e) =>
+                  e.id === id ? ({ ...e, ...patch } as CardEl) : e,
+                ),
+              }
+            : p,
+        ),
+      );
+    },
+    [currentPageId],
+  );
+
+  const deleteEl = useCallback(
+    (id: string) => {
+      setPages((prev) =>
+        prev.map((p) =>
+          p.id === currentPageId
+            ? { ...p, elements: p.elements.filter((e) => e.id !== id) }
+            : p,
+        ),
+      );
+      setSelectedId(null);
+      setEditingId(null);
+    },
+    [currentPageId],
+  );
+
+  const addText = useCallback(() => {
     const id = uid();
     const el: TextEl = {
       id,
@@ -581,9 +721,9 @@ export function InviteEditor() {
       fontFamily: "sans-serif",
       textAlign: "center",
     };
-    setEls((prev) => [...prev, el]);
+    setCurrentPageField({ elements: [...els, el] });
     setSelectedId(id);
-  };
+  }, [els, setCurrentPageField]);
 
   const handleImageFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -602,13 +742,19 @@ export function InviteEditor() {
           h: 150,
           src,
         };
-        setEls((prev) => [...prev, el]);
+        setPages((prev) =>
+          prev.map((p) =>
+            p.id === currentPageId
+              ? { ...p, elements: [...p.elements, el] }
+              : p,
+          ),
+        );
         setSelectedId(id);
       };
       reader.readAsDataURL(file);
       e.target.value = "";
     },
-    [],
+    [currentPageId],
   );
 
   const startDrag = useCallback(
@@ -740,22 +886,20 @@ export function InviteEditor() {
     });
     const { default: html2canvas } = await import("html2canvas");
     const { default: jsPDF } = await import("jspdf");
-    const el = canvasRef.current;
-    if (!el) {
-      setExporting(false);
-      return;
-    }
-    const shot = await html2canvas(el, { useCORS: true, scale: 2 });
-    const imgData = shot.toDataURL("image/png");
     const pdf = new jsPDF({
       orientation: "landscape",
       unit: "px",
       format: [CANVAS_W, CANVAS_H],
     });
-    pdf.addImage(imgData, "PNG", 0, 0, CANVAS_W, CANVAS_H);
+    for (let i = 0; i < pages.length; i++) {
+      const imgData = await capturePageAsDataUrl(pages[i]!, html2canvas);
+      if (i > 0) pdf.addPage([CANVAS_W, CANVAS_H], "l");
+      pdf.addImage(imgData, "PNG", 0, 0, CANVAS_W, CANVAS_H);
+    }
     pdf.save("invite.pdf");
+    setPdfSaved(true);
     setExporting(false);
-  }, []);
+  }, [pages]);
 
   return (
     <div
@@ -795,7 +939,7 @@ export function InviteEditor() {
           <input
             type="color"
             value={bgColor}
-            onChange={(e) => setBgColor(e.target.value)}
+            onChange={(e) => setCurrentPageField({ bgColor: e.target.value })}
             style={{
               width: 32,
               height: 28,
@@ -829,7 +973,28 @@ export function InviteEditor() {
             border: "none",
           }}
         >
-          {exporting ? "처리 중..." : "PDF 저장"}
+          {exporting ? "처리 중..." : `PDF 저장 (${pages.length}장)`}
+        </button>
+        <button
+          disabled={!pdfSaved}
+          onClick={() => {
+            setPages([
+              { id: "pg-1", bgColor: "#fff9f0", elements: DEFAULT_ELEMENTS },
+            ]);
+            setCurrentPageId("pg-1");
+            setSelectedId(null);
+            setEditingId(null);
+            setPdfSaved(false);
+          }}
+          style={{
+            ...toolBtn,
+            backgroundColor: pdfSaved ? "#f1f5f9" : "#f8fafc",
+            color: pdfSaved ? "#374151" : "#d1d5db",
+            cursor: pdfSaved ? "pointer" : "not-allowed",
+            border: `1px solid ${pdfSaved ? "#e5e7eb" : "#f1f5f9"}`,
+          }}
+        >
+          초기화
         </button>
       </div>
 
@@ -842,7 +1007,102 @@ export function InviteEditor() {
       />
 
       {/* Content */}
-      <div style={{ display: "flex", gap: 16, flex: 1, minHeight: 0 }}>
+      <div style={{ display: "flex", gap: 12, flex: 1, minHeight: 0 }}>
+        {/* Page sidebar */}
+        <div
+          style={{
+            width: 80,
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            overflowY: "auto",
+            paddingBottom: 4,
+          }}
+        >
+          {pages.map((page, idx) => (
+            <div
+              key={page.id}
+              onClick={() => switchPage(page.id)}
+              style={{
+                position: "relative",
+                width: 72,
+                height: 52,
+                borderRadius: 6,
+                border: `2px solid ${page.id === currentPageId ? ACCENT : "#e5e7eb"}`,
+                backgroundColor: page.bgColor,
+                cursor: "pointer",
+                flexShrink: 0,
+                boxShadow:
+                  page.id === currentPageId
+                    ? "0 0 0 1px #2563eb"
+                    : "0 1px 3px rgba(0,0,0,0.08)",
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: 3,
+                  left: 0,
+                  right: 0,
+                  textAlign: "center",
+                  fontSize: 10,
+                  color: "#6b7280",
+                  pointerEvents: "none",
+                }}
+              >
+                {idx + 1}
+              </span>
+              {pages.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removePage(page.id);
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    right: -6,
+                    width: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    background: "#ef4444",
+                    color: "#fff",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 10,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    zIndex: 1,
+                  }}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            onClick={addPage}
+            style={{
+              width: 72,
+              height: 36,
+              borderRadius: 6,
+              border: "1.5px dashed #d1d5db",
+              background: "transparent",
+              cursor: "pointer",
+              fontSize: 18,
+              color: "#9ca3af",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            +
+          </button>
+        </div>
+
         {/* Canvas wrapper */}
         <div
           style={{
@@ -851,6 +1111,7 @@ export function InviteEditor() {
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "center",
+            paddingTop: 24,
             paddingBottom: 24,
           }}
         >
@@ -877,7 +1138,6 @@ export function InviteEditor() {
               flexShrink: 0,
             }}
           >
-            {/* clip inner content but allow handles to overflow */}
             <div
               style={{
                 position: "absolute",
@@ -909,7 +1169,7 @@ export function InviteEditor() {
           </div>
         </div>
 
-        {/* Properties panel — always visible */}
+        {/* Properties panel */}
         {!exporting && (
           <PropertiesPanel
             el={selected}
