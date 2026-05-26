@@ -15,7 +15,7 @@ const links = [
 export function NavLinks() {
   const pathname = usePathname();
   return (
-    <nav style={{ display: "flex", gap: "4px" }}>
+    <nav className="hide-mobile" style={{ display: "flex", gap: "4px" }}>
       {links.map(({ href, label }) => {
         const active = pathname.startsWith(href);
         return (
