@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { TeapotGeometry } from "three/examples/jsm/geometries/TeapotGeometry.js";
+import GUI from "lil-gui";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type DemoId = "cube" | "lighting" | "texture" | "particles" | "wave";
+type DemoId = "cube" | "lighting" | "texture" | "particles" | "wave" | "teapot";
 
 const DEMOS: { id: DemoId; label: string }[] = [
   { id: "cube", label: "01. 회전하는 큐브" },
@@ -11,6 +14,7 @@ const DEMOS: { id: DemoId; label: string }[] = [
   { id: "texture", label: "03. 텍스처 매핑" },
   { id: "particles", label: "04. 파티클" },
   { id: "wave", label: "05. 웨이브 파티클" },
+  { id: "teapot", label: "06. 유타 주전자" },
 ];
 
 const DESC: Record<DemoId, { title: string; points: string[] }> = {
@@ -57,6 +61,15 @@ const DESC: Record<DemoId, { title: string; points: string[] }> = {
       "sin/cos 함수로 시간 기반 Y 위치 변동",
       "BufferGeometry attributes 매 프레임 업데이트",
       "needsUpdate = true 로 GPU에 변경 반영",
+    ],
+  },
+  teapot: {
+    title: "유타 주전자 (Utah Teapot)",
+    points: [
+      "TeapotGeometry — 3D 그래픽 역사적 표준 모델",
+      "OrbitControls — 마우스로 회전·줌·패닝",
+      "lil-gui — 런타임 파라미터 조작 패널",
+      "6가지 재질 전환 (wireframe ~ textured)",
     ],
   },
 };
@@ -393,12 +406,139 @@ function initWave(canvas: HTMLCanvasElement) {
   };
 }
 
+function initTeapot(canvas: HTMLCanvasElement) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#aaaaaa");
+
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    canvas.clientWidth / canvas.clientHeight,
+    1,
+    80000,
+  );
+  camera.position.set(-600, 550, 1300);
+
+  scene.add(new THREE.AmbientLight(0x7c7c7c, 2.0));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+  dirLight.position.set(0.32, 0.39, 0.7);
+  scene.add(dirLight);
+
+  const controls = new OrbitControls(camera, canvas);
+  controls.addEventListener("change", () => renderer.render(scene, camera));
+
+  // 체커보드 텍스처 (canvas 생성)
+  const texCanvas = document.createElement("canvas");
+  texCanvas.width = 512;
+  texCanvas.height = 512;
+  const ctx = texCanvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, 512, 512);
+  ctx.fillStyle = "#e63946";
+  for (let r = 0; r < 16; r++)
+    for (let c = 0; c < 16; c++)
+      if ((r + c) % 2 === 0) ctx.fillRect(c * 32, r * 32, 32, 32);
+  const textureMap = new THREE.CanvasTexture(texCanvas);
+  textureMap.wrapS = textureMap.wrapT = THREE.RepeatWrapping;
+  textureMap.colorSpace = THREE.SRGBColorSpace;
+
+  type ShadingKey = "wireframe" | "flat" | "smooth" | "glossy" | "textured";
+  const materials: Record<ShadingKey, THREE.Material> = {
+    wireframe: new THREE.MeshBasicMaterial({ wireframe: true }),
+    flat: new THREE.MeshPhongMaterial({
+      specular: 0x000000,
+      flatShading: true,
+      side: THREE.DoubleSide,
+    }),
+    smooth: new THREE.MeshLambertMaterial({ side: THREE.DoubleSide }),
+    glossy: new THREE.MeshPhongMaterial({
+      color: 0xc0c0c0,
+      specular: 0x404040,
+      shininess: 300,
+      side: THREE.DoubleSide,
+    }),
+    textured: new THREE.MeshPhongMaterial({
+      map: textureMap,
+      side: THREE.DoubleSide,
+    }),
+  };
+
+  const TEAPOT_SIZE = 300;
+  let teapot: THREE.Mesh | null = null;
+
+  const params = {
+    tessellation: 15,
+    bottom: true,
+    lid: true,
+    body: true,
+    fitLid: false,
+    nonblinn: false,
+    shading: "glossy" as ShadingKey,
+  };
+
+  function buildTeapot() {
+    if (teapot) {
+      teapot.geometry.dispose();
+      scene.remove(teapot);
+    }
+    const geo = new TeapotGeometry(
+      TEAPOT_SIZE,
+      params.tessellation,
+      params.bottom,
+      params.lid,
+      params.body,
+      params.fitLid,
+      !params.nonblinn,
+    );
+    teapot = new THREE.Mesh(geo, materials[params.shading]);
+    scene.add(teapot);
+    renderer.render(scene, camera);
+  }
+  buildTeapot();
+
+  const gui = new GUI({ container: canvas.parentElement! });
+  gui.domElement.style.position = "absolute";
+  gui.domElement.style.top = "12px";
+  gui.domElement.style.right = "12px";
+  gui
+    .add(params, "tessellation", [2, 3, 4, 5, 6, 8, 10, 15, 20, 30, 40, 50])
+    .name("Tessellation")
+    .onChange(buildTeapot);
+  gui.add(params, "lid").name("뚜껑").onChange(buildTeapot);
+  gui.add(params, "body").name("몸통").onChange(buildTeapot);
+  gui.add(params, "bottom").name("바닥").onChange(buildTeapot);
+  gui.add(params, "fitLid").name("뚜껑 밀착").onChange(buildTeapot);
+  gui.add(params, "nonblinn").name("원본 스케일").onChange(buildTeapot);
+  gui
+    .add(params, "shading", [
+      "wireframe",
+      "flat",
+      "smooth",
+      "glossy",
+      "textured",
+    ])
+    .name("재질")
+    .onChange(buildTeapot);
+
+  return () => {
+    controls.dispose();
+    gui.destroy();
+    teapot?.geometry.dispose();
+    Object.values(materials).forEach((m) => m.dispose());
+    textureMap.dispose();
+    renderer.dispose();
+  };
+}
+
 const INIT_FN: Record<DemoId, (canvas: HTMLCanvasElement) => () => void> = {
   cube: initCube,
   lighting: initLighting,
   texture: initTexture,
   particles: initParticles,
   wave: initWave,
+  teapot: initTeapot,
 };
 
 // ─── ThreeDemoViewer Component ────────────────────────────────────────────────
@@ -558,7 +698,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "순수 Three.js로 구현한 5가지 인터랙티브 3D 데모. 각 데모에서 Three.js 핵심 개념을 학습할 수 있습니다.",
+          "순수 Three.js로 구현한 6가지 인터랙티브 3D 데모. 각 데모에서 Three.js 핵심 개념을 학습할 수 있습니다.",
       },
     },
   },
@@ -623,6 +763,18 @@ export const 웨이브파티클: Story = {
       description: {
         story:
           "40×40 격자 파티클을 sin/cos 함수로 매 프레임 Y값을 업데이트해 물결 애니메이션을 만듭니다. needsUpdate 패턴의 핵심을 보여줍니다.",
+      },
+    },
+  },
+};
+
+export const 유타주전자: Story = {
+  args: { defaultDemo: "teapot" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "3D 그래픽의 Hello World, Utah Teapot. OrbitControls로 마우스 드래그·줌·패닝, lil-gui 패널로 Tessellation·재질·부위를 실시간 조작할 수 있습니다.",
       },
     },
   },
