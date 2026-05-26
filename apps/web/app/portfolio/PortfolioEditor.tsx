@@ -1049,6 +1049,7 @@ export function PortfolioEditor() {
   const [resizing, setResizing] = useState<ResizingState | null>(null);
   const [exporting, setExporting] = useState(false);
   const [pdfSaved, setPdfSaved] = useState(false);
+  const [pdfName, setPdfName] = useState("portfolio");
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -1348,7 +1349,7 @@ export function PortfolioEditor() {
         }
       }
     }
-    pdf.save("portfolio.pdf");
+    pdf.save(`${pdfName || "portfolio"}.pdf`);
     setPdfSaved(true);
     setExporting(false);
   }, [pages]);
@@ -1406,6 +1407,23 @@ export function PortfolioEditor() {
           />
         </label>
         <div style={{ flex: 1 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <input
+            type="text"
+            value={pdfName}
+            onChange={(e) => setPdfName(e.target.value)}
+            placeholder="파일명"
+            style={{
+              ...toolBtn,
+              width: 120,
+              padding: "7px 10px",
+              outline: "none",
+            }}
+          />
+          <span style={{ fontSize: 12, color: "#9ca3af", flexShrink: 0 }}>
+            .pdf
+          </span>
+        </div>
         <button
           onClick={exportPDF}
           disabled={exporting}
