@@ -4,6 +4,7 @@ import { Providers } from "./providers";
 import { css } from "../styled-system/css";
 import { HeaderTitle } from "./HeaderTitle";
 import { NavLinks } from "./NavLinks";
+import { MobileNav } from "./MobileNav";
 
 export const metadata: Metadata = {
   title: {
@@ -41,6 +42,7 @@ export default function RootLayout({
           >
             <HeaderTitle />
             <NavLinks />
+            <MobileNav />
           </nav>
         </header>
         <main
