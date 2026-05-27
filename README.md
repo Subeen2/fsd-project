@@ -1,6 +1,21 @@
 # Mindwave
 
-풀스택 모노레포 보일러플레이트. Next.js 15 + WebSocket + 공유 디자인 시스템으로 구성된 프로덕션 수준의 시작점입니다.
+풀스택 모노레포. Next.js 15 + WebSocket + 공유 디자인 시스템으로 구성된 프로덕션 수준의 시작점입니다.
+
+---
+
+## 기능
+
+| 페이지            | 경로                 | 설명                                                           |
+| ----------------- | -------------------- | -------------------------------------------------------------- |
+| 홈                | `/`                  | 기능 카드 그리드 랜딩                                          |
+| 실시간 채팅       | `/chat`              | WebSocket 기반 멀티룸 채팅 (테마·폰트 커스터마이징)            |
+| 마인드맵          | `/mindmap`           | React Flow 기반 멀티보드 마인드맵 (노드 색상·이미지·크기 조절) |
+| 할 일             | `/todo`              | 달력 연동 날짜별 할일 + 체크리스트 (Zustand 영속화)            |
+| 초대장 편집기     | `/invite`            | 드래그 리사이즈 가능한 초대장 PNG/PDF 내보내기                 |
+| 포트폴리오 편집기 | `/portfolio`         | A4 멀티페이지 포트폴리오 PDF 내보내기                          |
+| Three.js 데모     | `/three`             | Utah Teapot + OrbitControls + lil-gui                          |
+| 로그인 / 회원가입 | `/login` `/register` | JWT 인증                                                       |
 
 ---
 
@@ -301,22 +316,25 @@ config (leaf)
 
 ## 기술 스택 요약
 
-| 영역                | 선택                          | 버전 |
-| ------------------- | ----------------------------- | ---- |
-| 패키지 매니저       | pnpm                          | 9.x  |
-| 빌드 오케스트레이션 | Turborepo                     | 2.x  |
-| 프레임워크          | Next.js (App Router)          | 15.x |
-| UI 라이브러리       | React                         | 19.x |
-| WebSocket 서버      | ws                            | 8.x  |
-| 스타일              | Panda CSS (css + SVA)         | 1.x  |
-| 클라이언트 상태     | Zustand                       | 5.x  |
-| 서버 상태           | TanStack Query                | 5.x  |
-| 데이터베이스        | PostgreSQL (Supabase)         | -    |
-| ORM                 | Prisma                        | 5.x  |
-| 인증                | JWT (jsonwebtoken + bcryptjs) | -    |
-| 언어                | TypeScript (strict)           | 5.x  |
-| 단위테스트          | Vitest                        | 4.x  |
-| UI 문서             | Storybook                     | 8.x  |
-| 런타임              | Node.js                       | ≥ 20 |
-| 배포 (Web + API)    | Vercel                        | -    |
-| 배포 (WebSocket)    | Fly.io                        | -    |
+| 영역                  | 선택                          | 버전 |
+| --------------------- | ----------------------------- | ---- |
+| 패키지 매니저         | pnpm                          | 9.x  |
+| 빌드 오케스트레이션   | Turborepo                     | 2.x  |
+| 프레임워크            | Next.js (App Router)          | 15.x |
+| UI 라이브러리         | React                         | 19.x |
+| WebSocket 서버        | ws                            | 8.x  |
+| 스타일                | Panda CSS (css + SVA)         | 1.x  |
+| 클라이언트 상태       | Zustand                       | 5.x  |
+| 서버 상태             | TanStack Query                | 5.x  |
+| 데이터베이스          | PostgreSQL (Supabase)         | -    |
+| ORM                   | Prisma                        | 5.x  |
+| 인증                  | JWT (jsonwebtoken + bcryptjs) | -    |
+| 언어                  | TypeScript (strict)           | 5.x  |
+| 다이어그램            | React Flow (@xyflow/react)    | 12.x |
+| 3D 렌더링             | Three.js                      | 0.x  |
+| PDF / 이미지 내보내기 | jsPDF + html2canvas           | -    |
+| 단위테스트            | Vitest                        | 4.x  |
+| UI 문서               | Storybook                     | 8.x  |
+| 런타임                | Node.js                       | ≥ 20 |
+| 배포 (Web + API)      | Vercel                        | -    |
+| 배포 (WebSocket)      | Fly.io                        | -    |
