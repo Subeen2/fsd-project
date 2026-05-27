@@ -202,12 +202,11 @@ function CalendarPanel({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "28px repeat(7, 1fr)",
+            gridTemplateColumns: "repeat(7, 1fr)",
             gap: "2px 0",
             marginBottom: 4,
           }}
         >
-          <div />
           {DAYS.map((d, i) => (
             <div
               key={d}
@@ -231,27 +230,11 @@ function CalendarPanel({
               key={week}
               style={{
                 display: "grid",
-                gridTemplateColumns: "28px repeat(7, 1fr)",
+                gridTemplateColumns: "repeat(7, 1fr)",
                 alignItems: "center",
                 gap: "0 2px",
               }}
             >
-              {/* 주차 배지 */}
-              <div
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: "#E8E3DA",
-                  backgroundColor: INK,
-                  borderRadius: 6,
-                  textAlign: "center",
-                  padding: "3px 0",
-                  lineHeight: 1.4,
-                }}
-              >
-                {week}
-              </div>
-
               {days.map(({ date, inMonth }, di) => {
                 const isSel = isSelected(date);
                 const isTod = isToday(date);

@@ -35,6 +35,7 @@ export function MindmapNodeComponent({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(data.label);
   const [imgHover, setImgHover] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -67,8 +68,14 @@ export function MindmapNodeComponent({
     [id, updateNodeImage],
   );
 
+  const showHandles = hovered || selected;
+
   return (
-    <div style={{ position: "relative" }}>
+    <div
+      style={{ position: "relative" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <div
         style={{
           borderRadius: "10px",
@@ -88,13 +95,27 @@ export function MindmapNodeComponent({
           type="target"
           position={Position.Top}
           id="tl"
-          style={{ background: "#9ca3af", width: 8, height: 8, left: 0 }}
+          style={{
+            background: "#9ca3af",
+            width: 8,
+            height: 8,
+            left: 0,
+            opacity: showHandles ? 1 : 0,
+            transition: "opacity 0.15s",
+          }}
         />
         <Handle
           type="target"
           position={Position.Top}
           id="tr"
-          style={{ background: "#9ca3af", width: 8, height: 8, left: "100%" }}
+          style={{
+            background: "#9ca3af",
+            width: 8,
+            height: 8,
+            left: "100%",
+            opacity: showHandles ? 1 : 0,
+            transition: "opacity 0.15s",
+          }}
         />
 
         {/* 이미지 영역 */}
@@ -228,13 +249,27 @@ export function MindmapNodeComponent({
           type="source"
           position={Position.Bottom}
           id="bl"
-          style={{ background: "#9ca3af", width: 8, height: 8, left: 0 }}
+          style={{
+            background: "#9ca3af",
+            width: 8,
+            height: 8,
+            left: 0,
+            opacity: showHandles ? 1 : 0,
+            transition: "opacity 0.15s",
+          }}
         />
         <Handle
           type="source"
           position={Position.Bottom}
           id="br"
-          style={{ background: "#9ca3af", width: 8, height: 8, left: "100%" }}
+          style={{
+            background: "#9ca3af",
+            width: 8,
+            height: 8,
+            left: "100%",
+            opacity: showHandles ? 1 : 0,
+            transition: "opacity 0.15s",
+          }}
         />
       </div>
 
