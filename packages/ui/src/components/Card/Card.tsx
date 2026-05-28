@@ -1,5 +1,53 @@
 import React from "react";
-import { cn } from "@fsd/shared";
+import { cva, css } from "../../../styled-system/css";
+
+const cardVariants = cva({
+  base: {
+    borderRadius: "lg",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "border.default",
+    bg: "bg.default",
+  },
+  variants: {
+    padding: {
+      none: {},
+      sm: { p: "3" },
+      md: { p: "5" },
+      lg: { p: "7" },
+    },
+    shadow: {
+      none: {},
+      sm: { shadow: "sm" },
+      md: { shadow: "md" },
+    },
+    interactive: {
+      true: {
+        cursor: "pointer",
+        transition: "box-shadow 0.15s ease-out",
+        _hover: { shadow: "md" },
+      },
+      false: {},
+    },
+  },
+  defaultVariants: { padding: "md", shadow: "sm", interactive: false },
+});
+
+const headerCss = css({
+  mb: "4",
+  borderBottomWidth: "1px",
+  borderBottomStyle: "solid",
+  borderColor: "border.subtle",
+  pb: "3",
+});
+
+const footerCss = css({
+  mt: "4",
+  borderTopWidth: "1px",
+  borderTopStyle: "solid",
+  borderColor: "border.subtle",
+  pt: "3",
+});
 
 export interface CardProps {
   children: React.ReactNode;
@@ -24,19 +72,6 @@ export interface CardFooterProps {
   className?: string;
 }
 
-const paddingClasses = {
-  none: "",
-  sm: "p-3",
-  md: "p-5",
-  lg: "p-7",
-};
-
-const shadowClasses = {
-  none: "",
-  sm: "shadow-sm",
-  md: "shadow-md",
-};
-
 export function Card({
   children,
   className,
@@ -44,18 +79,16 @@ export function Card({
   shadow = "sm",
   onClick,
 }: CardProps) {
+  const interactive = !!onClick;
   return (
     <div
-      className={cn(
-        "rounded-lg border border-gray-200 bg-white",
-        paddingClasses[padding],
-        shadowClasses[shadow],
-        onClick && "cursor-pointer transition-shadow hover:shadow-md",
-        className
-      )}
+      className={
+        cardVariants({ padding, shadow, interactive }) +
+        (className ? ` ${className}` : "")
+      }
       onClick={onClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
     >
       {children}
     </div>
@@ -64,19 +97,19 @@ export function Card({
 
 export function CardHeader({ children, className }: CardHeaderProps) {
   return (
-    <div className={cn("mb-4 border-b border-gray-100 pb-3", className)}>
+    <div className={headerCss + (className ? ` ${className}` : "")}>
       {children}
     </div>
   );
 }
 
 export function CardBody({ children, className }: CardBodyProps) {
-  return <div className={cn("", className)}>{children}</div>;
+  return <div className={className}>{children}</div>;
 }
 
 export function CardFooter({ children, className }: CardFooterProps) {
   return (
-    <div className={cn("mt-4 border-t border-gray-100 pt-3", className)}>
+    <div className={footerCss + (className ? ` ${className}` : "")}>
       {children}
     </div>
   );

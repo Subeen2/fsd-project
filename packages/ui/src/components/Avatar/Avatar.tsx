@@ -12,8 +12,8 @@ const avatarSlots = sva({
       justifyContent: "center",
       borderRadius: "full",
       overflow: "hidden",
-      bg: "gray.200",
-      color: "gray.600",
+      bg: "bg.muted",
+      color: "text.subtle",
       fontWeight: "medium",
       userSelect: "none",
     },
@@ -25,7 +25,7 @@ const avatarSlots = sva({
     icon: {
       h: "[60%]",
       w: "[60%]",
-      color: "gray.400",
+      color: "text.muted",
     },
   },
   variants: {
