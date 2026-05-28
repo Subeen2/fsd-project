@@ -974,22 +974,29 @@ async function capturePageAsDataUrl(
   canvasH: number,
   html2canvas: (
     el: HTMLElement,
-    opts?: { useCORS?: boolean; scale?: number },
+    opts?: {
+      useCORS?: boolean;
+      scale?: number;
+      allowTaint?: boolean;
+      logging?: boolean;
+    },
   ) => Promise<HTMLCanvasElement>,
 ): Promise<string> {
+  await document.fonts.ready;
+
   const container = document.createElement("div");
-  container.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${canvasW}px;height:${canvasH}px;background-color:${page.bgColor};overflow:hidden;`;
+  container.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${canvasW}px;height:${canvasH}px;background-color:${page.bgColor};overflow:hidden;-webkit-font-smoothing:antialiased;`;
 
   page.elements.forEach((el) => {
     const div = document.createElement("div");
-    div.style.cssText = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
+    div.style.cssText = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;box-sizing:border-box;`;
 
     if (el.type === "rect") {
       div.style.backgroundColor = el.bgColor;
       div.style.borderRadius = `${el.borderRadius}px`;
     } else if (el.type === "text") {
       div.style.fontSize = `${el.fontSize}px`;
-      div.style.color = el.color;
+      div.style.color = el.url ? "#2563eb" : el.color;
       div.style.fontWeight = el.fontWeight;
       div.style.fontFamily = el.fontFamily;
       div.style.textAlign = el.textAlign;
@@ -1004,6 +1011,7 @@ async function capturePageAsDataUrl(
       div.style.wordBreak = "break-word";
       div.style.whiteSpace = "pre-wrap";
       div.style.lineHeight = "1.4";
+      if (el.url) div.style.textDecoration = "underline";
       div.textContent = el.content;
     } else {
       const img = document.createElement("img");
@@ -1018,8 +1026,14 @@ async function capturePageAsDataUrl(
 
   document.body.appendChild(container);
   try {
-    const shot = await html2canvas(container, { useCORS: true, scale: 2 });
-    return shot.toDataURL("image/png");
+    // scale:4 → ~196 DPI on A4, significantly sharper than scale:2 (~102 DPI)
+    const shot = await html2canvas(container, {
+      useCORS: true,
+      scale: 4,
+      allowTaint: true,
+      logging: false,
+    });
+    return shot.toDataURL("image/jpeg", 0.95);
   } finally {
     document.body.removeChild(container);
   }
@@ -1341,7 +1355,7 @@ export function PortfolioEditor() {
         html2canvas,
       );
       if (i > 0) pdf.addPage("a4", "landscape");
-      pdf.addImage(imgData, "PNG", 0, 0, 297, 210);
+      pdf.addImage(imgData, "JPEG", 0, 0, 297, 210);
       // Add clickable link annotations for text elements with URLs
       const scaleX = 297 / CANVAS_W;
       const scaleY = 210 / CANVAS_H;
