@@ -26,6 +26,9 @@ importers:
 
   apps/desktop:
     devDependencies:
+      '@fsd/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.18
@@ -38,6 +41,9 @@ importers:
       electron-vite:
         specifier: ^2.3.0
         version: 2.3.0(vite@6.4.2(@types/node@22.19.18)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.21.0))
+      eslint:
+        specifier: ^8.57.1
+        version: 8.57.1
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
