@@ -110,6 +110,62 @@ pnpm --filter @fsd/storybook dev
 # Foundations/Design Tokens — 모든 토큰 시각적 레퍼런스
 ```
 
+## Electron Desktop (`apps/desktop`)
+
+### 구조
+
+```
+apps/desktop/
+  src/
+    main/index.ts      — 메인 프로세스 (BrowserWindow, IPC 핸들러, 앱 메뉴)
+    preload/index.ts   — contextBridge로 렌더러에 안전한 API 노출
+    preload/index.d.ts — window.electronAPI 타입 선언
+  electron.vite.config.ts
+  electron-builder.yml
+```
+
+### 실행
+
+```bash
+# Next.js + Electron 동시 실행 (권장)
+pnpm dev:desktop
+
+# Electron만 빌드
+pnpm --filter @fsd/desktop build
+
+# 패키징 (배포용)
+pnpm --filter @fsd/desktop dist
+```
+
+### 동작 방식
+
+| 모드 | 로드 경로                                          |
+| ---- | -------------------------------------------------- |
+| dev  | `http://localhost:3000` (Next.js 개발 서버)        |
+| prod | `resources/web/index.html` (Next.js static export) |
+
+### 노출된 IPC API (`window.electronAPI`)
+
+```ts
+getVersion()            // 앱 버전
+getPlatform()           // OS 플랫폼
+isDev()                 // 개발 모드 여부
+getTheme() / setTheme() // 시스템 다크모드 연동
+openFile(filters?)      // 네이티브 파일 열기 다이얼로그
+saveFile(defaultName?)  // 네이티브 파일 저장 다이얼로그
+openExternal(url)       // 시스템 브라우저로 URL 열기
+minimize/maximize/close // 커스텀 타이틀바용 윈도우 컨트롤
+```
+
+### 프로덕션 빌드 준비
+
+Next.js static export 설정 필요:
+
+```ts
+// apps/web/next.config.ts
+export default { output: "export" };
+```
+
 ## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
