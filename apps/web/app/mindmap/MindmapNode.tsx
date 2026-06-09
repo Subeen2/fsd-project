@@ -125,6 +125,7 @@ export function MindmapNodeComponent({
             onMouseEnter={() => setImgHover(true)}
             onMouseLeave={() => setImgHover(false)}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}
               alt={data.label || "image"}

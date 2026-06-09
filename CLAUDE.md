@@ -166,6 +166,55 @@ Next.js static export 설정 필요:
 export default { output: "export" };
 ```
 
+## Next.js 최적화 규칙
+
+### 이미지: `next/image` 기본 원칙
+
+**항상 `next/image`를 사용한다.** `<img>` 태그는 아래 예외 외에 사용 금지.
+
+```tsx
+// 금지
+<img src={url} alt="..." />
+
+// 권장
+import Image from "next/image";
+<Image src={url} alt="..." width={400} height={300} />
+
+// 크기를 모를 때 (부모 relative 필요)
+<div style={{ position: "relative", width: "100%" }}>
+  <Image src={url} alt="..." fill style={{ objectFit: "contain" }} />
+</div>
+```
+
+**`next/image` 예외 (eslint-disable 주석 추가):**
+
+- `html2canvas` 렌더 컨테이너 내부 이미지 — `/next/image` 최적화 URL로 바뀌면 CORS 오류 발생
+- `data:` URL (Base64 인코딩 이미지) — next/image가 지원하지 않음
+- React Flow 노드 내부의 사용자 업로드 이미지 (blob/data URL)
+
+예외 처리 방법:
+
+```tsx
+{
+  /* eslint-disable-next-line @next/next/no-img-element */
+}
+<img src={blobUrl} alt="" />;
+```
+
+**외부 도메인 이미지를 `next/image`로 사용할 때** `next.config.ts`에 `remotePatterns` 추가:
+
+```ts
+images: {
+  remotePatterns: [{ protocol: "https", hostname: "example.com" }],
+}
+```
+
+### 번들 최적화
+
+- 무거운 라이브러리(`three.js`, `@xyflow/react`, `lottie` 등)는 반드시 `next/dynamic`으로 lazy load
+- PDF/Canvas 라이브러리(`jspdf`, `html2canvas`)는 사용 시점에 `await import()` 동적 로드
+- 번들 확인: `pnpm --filter @fsd/web analyze` → `.next/analyze/client.html` 열기
+
 ## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)

@@ -589,6 +589,7 @@ function ElRenderer({
         ))}
 
       {el.type === "image" && (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={el.src}
           alt=""
