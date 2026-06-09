@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 const CARDS = [
@@ -97,18 +95,12 @@ export default function HomePage() {
           <Link key={href} href={href} style={{ textDecoration: "none" }}>
             <div
               className="home-card"
-              onMouseEnter={(e) => {
-                const el = e.currentTarget;
-                el.style.borderColor = hoverColor;
-                el.style.boxShadow = `0 8px 24px ${hoverShadow}`;
-                el.style.transform = "translateY(-4px)";
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget;
-                el.style.borderColor = "#e2e8f0";
-                el.style.boxShadow = "0 1px 4px rgba(0,0,0,0.06)";
-                el.style.transform = "translateY(0)";
-              }}
+              style={
+                {
+                  "--hover-color": hoverColor,
+                  "--hover-shadow": hoverShadow,
+                } as React.CSSProperties
+              }
             >
               <span className="home-card-icon">{icon}</span>
               <div style={{ textAlign: "center" }}>

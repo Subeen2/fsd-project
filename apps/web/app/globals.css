@@ -59,6 +59,12 @@ body {
   padding: 16px;
 }
 
+.home-card:hover {
+  border-color: var(--hover-color, #2563eb);
+  box-shadow: 0 8px 24px var(--hover-shadow, rgba(37, 99, 235, 0.12));
+  transform: translateY(-4px);
+}
+
 .home-card-icon {
   font-size: 48px;
   line-height: 1;
