@@ -1,0 +1,37 @@
+appId: com.fsd.mindwave
+productName: Mindwave
+copyright: "Copyright © 2025 FSD Project"
+
+directories:
+  buildResources: resources
+  output: release
+
+files:
+  - out/**/*
+  - "!**/*.{ts,map}"
+
+# Production: bundle the Next.js static export
+# Run `pnpm --filter @fsd/web build` (with output:'export') before packaging
+extraResources:
+  - from: "../web/out"
+    to: "web"
+    filter: ["**/*"]
+
+mac:
+  category: public.app-category.productivity
+  icon: resources/icon.icns
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+
+win:
+  icon: resources/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+
+linux:
+  icon: resources/icon.png
+  target:
+    - target: AppImage
+      arch: [x64]

@@ -5,15 +5,18 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:desktop": "concurrently -n web,electron -c blue,green \"pnpm --filter @fsd/web dev\" \"wait-on http://localhost:3000 && pnpm --filter @fsd/desktop dev\"",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "turbo": "^2.3.3",
     "typescript": "^5.7.2",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "wait-on": "^8.0.3"
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {

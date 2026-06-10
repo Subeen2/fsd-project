@@ -14,7 +14,7 @@ const inputSlots = sva({
   ],
   base: {
     root: { display: "flex", flexDir: "column", gap: "1" },
-    label: { fontSize: "sm", fontWeight: "medium", color: "gray.700" },
+    label: { fontSize: "sm", fontWeight: "medium", color: "text.default" },
     inputWrapper: {
       position: "relative",
       display: "flex",
@@ -25,32 +25,36 @@ const inputSlots = sva({
       borderRadius: "md",
       borderWidth: "1px",
       borderStyle: "solid",
-      bg: "white",
+      bg: "bg.default",
       px: "3",
       py: "2",
       fontSize: "sm",
-      color: "gray.900",
-      _placeholder: { color: "gray.400" },
+      color: "text.default",
+      _placeholder: { color: "text.muted" },
       _focusVisible: { outline: "2px solid", outlineOffset: "1px" },
-      _disabled: { cursor: "not-allowed", bg: "gray.50", color: "gray.400" },
+      _disabled: {
+        cursor: "not-allowed",
+        bg: "bg.subtle",
+        color: "text.disabled",
+      },
     },
-    leftIcon: { position: "absolute", left: "3", color: "gray.400" },
-    rightIcon: { position: "absolute", right: "3", color: "gray.400" },
-    hint: { fontSize: "xs", color: "gray.400" },
-    error: { fontSize: "xs", color: "red.500" },
+    leftIcon: { position: "absolute", left: "3", color: "text.muted" },
+    rightIcon: { position: "absolute", right: "3", color: "text.muted" },
+    hint: { fontSize: "xs", color: "text.muted" },
+    error: { fontSize: "xs", color: "danger.default" },
   },
   variants: {
     hasError: {
       true: {
         input: {
-          borderColor: "red.400",
-          _focusVisible: { outlineColor: "red.400" },
+          borderColor: "danger.default",
+          _focusVisible: { outlineColor: "danger.default" },
         },
       },
       false: {
         input: {
-          borderColor: "gray.300",
-          _focusVisible: { outlineColor: "blue.500" },
+          borderColor: "border.default",
+          _focusVisible: { outlineColor: "brand.default" },
         },
       },
     },

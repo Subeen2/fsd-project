@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && panda codegen && next build",
+    "analyze": "ANALYZE=true pnpm build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "prisma generate && tsc --noEmit",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@fsd/config": "workspace:*",
+    "@next/bundle-analyzer": "^16.2.7",
     "@types/bcryptjs": "^3.0.0",
     "@types/html2canvas": "^1.0.0",
     "@types/jsonwebtoken": "^9.0.10",
