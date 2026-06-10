@@ -52,6 +52,9 @@ export default async function LocaleLayout({
               borderColor: "gray.200",
               px: "6",
               py: "4",
+              position: "relative",
+              zIndex: "sticky",
+              bg: "bg.default",
             })}
           >
             <nav
