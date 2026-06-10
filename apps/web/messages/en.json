@@ -23,15 +23,20 @@
     }
   },
   "auth": {
-    "login": "Login",
-    "register": "Register",
-    "logout": "Logout",
+    "loginTitle": "Sign in",
+    "registerTitle": "Create account",
     "email": "Email",
     "password": "Password",
     "username": "Username",
+    "usernameHint": "Letters, numbers, and underscores only",
+    "displayName": "Display name",
     "loginButton": "Sign in",
     "registerButton": "Create account",
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "loginLink": "Sign in",
+    "registerLink": "Register",
+    "loginError": "Login failed. Please try again.",
+    "registerError": "Registration failed. Please try again."
   }
 }

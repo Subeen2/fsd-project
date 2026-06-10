@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "../../../i18n/navigation";
 import { Button, Input } from "@fsd/ui";
 import { useAuth } from "@fsd/features";
 import { css } from "../../../styled-system/css";
 
 export default function LoginPage() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
@@ -27,7 +28,7 @@ export default function LoginPage() {
         setError(result.error.message);
       }
     } catch {
-      setError("로그인에 실패했습니다. 다시 시도해주세요.");
+      setError(t("loginError"));
     } finally {
       setLoading(false);
     }
@@ -43,21 +44,21 @@ export default function LoginPage() {
           textAlign: "center",
         })}
       >
-        로그인
+        {t("loginTitle")}
       </h1>
       <form
         onSubmit={handleSubmit}
         className={css({ display: "flex", flexDirection: "column", gap: "4" })}
       >
         <Input
-          label="이메일"
+          label={t("email")}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
         <Input
-          label="비밀번호"
+          label={t("password")}
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -67,7 +68,7 @@ export default function LoginPage() {
           <p className={css({ color: "red.500", fontSize: "sm" })}>{error}</p>
         )}
         <Button type="submit" loading={loading}>
-          로그인
+          {t("loginButton")}
         </Button>
         <p
           className={css({
@@ -76,12 +77,12 @@ export default function LoginPage() {
             color: "gray.500",
           })}
         >
-          계정이 없으신가요?{" "}
+          {t("noAccount")}{" "}
           <Link
             href="/register"
             className={css({ color: "blue.600", textDecoration: "underline" })}
           >
-            회원가입
+            {t("registerLink")}
           </Link>
         </p>
       </form>

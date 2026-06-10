@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "../../../i18n/navigation";
 import { Button, Input } from "@fsd/ui";
 import { useAuth } from "@fsd/features";
 import { css } from "../../../styled-system/css";
 
 export default function RegisterPage() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const { register } = useAuth();
   const [form, setForm] = useState({
@@ -34,7 +35,7 @@ export default function RegisterPage() {
         setError(result.error.message);
       }
     } catch {
-      setError("회원가입에 실패했습니다. 다시 시도해주세요.");
+      setError(t("registerError"));
     } finally {
       setLoading(false);
     }
@@ -50,14 +51,14 @@ export default function RegisterPage() {
           textAlign: "center",
         })}
       >
-        회원가입
+        {t("registerTitle")}
       </h1>
       <form
         onSubmit={handleSubmit}
         className={css({ display: "flex", flexDirection: "column", gap: "4" })}
       >
         <Input
-          label="이메일"
+          label={t("email")}
           type="email"
           name="email"
           value={form.email}
@@ -65,16 +66,16 @@ export default function RegisterPage() {
           required
         />
         <Input
-          label="사용자명"
+          label={t("username")}
           type="text"
           name="username"
           value={form.username}
           onChange={handleChange}
-          hint="영문, 숫자, 밑줄만 사용 가능"
+          hint={t("usernameHint")}
           required
         />
         <Input
-          label="표시 이름"
+          label={t("displayName")}
           type="text"
           name="displayName"
           value={form.displayName}
@@ -82,7 +83,7 @@ export default function RegisterPage() {
           required
         />
         <Input
-          label="비밀번호"
+          label={t("password")}
           type="password"
           name="password"
           value={form.password}
@@ -93,7 +94,7 @@ export default function RegisterPage() {
           <p className={css({ color: "red.500", fontSize: "sm" })}>{error}</p>
         )}
         <Button type="submit" loading={loading}>
-          가입하기
+          {t("registerButton")}
         </Button>
         <p
           className={css({
@@ -102,12 +103,12 @@ export default function RegisterPage() {
             color: "gray.500",
           })}
         >
-          이미 계정이 있으신가요?{" "}
+          {t("hasAccount")}{" "}
           <Link
             href="/login"
             className={css({ color: "blue.600", textDecoration: "underline" })}
           >
-            로그인
+            {t("loginLink")}
           </Link>
         </p>
       </form>

@@ -23,15 +23,20 @@
     }
   },
   "auth": {
-    "login": "로그인",
-    "register": "회원가입",
-    "logout": "로그아웃",
+    "loginTitle": "로그인",
+    "registerTitle": "회원가입",
     "email": "이메일",
     "password": "비밀번호",
-    "username": "사용자 이름",
+    "username": "사용자명",
+    "usernameHint": "영문, 숫자, 밑줄만 사용 가능",
+    "displayName": "표시 이름",
     "loginButton": "로그인",
-    "registerButton": "회원가입",
+    "registerButton": "가입하기",
     "noAccount": "계정이 없으신가요?",
-    "hasAccount": "이미 계정이 있으신가요?"
+    "hasAccount": "이미 계정이 있으신가요?",
+    "loginLink": "로그인",
+    "registerLink": "회원가입",
+    "loginError": "로그인에 실패했습니다. 다시 시도해주세요.",
+    "registerError": "회원가입에 실패했습니다. 다시 시도해주세요."
   }
 }
