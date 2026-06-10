@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useChatTheme } from "@fsd/features";
-import { css } from "../styled-system/css";
+import { css } from "../../styled-system/css";
 
 export function HeaderTitle() {
   const { roomName } = useChatTheme();

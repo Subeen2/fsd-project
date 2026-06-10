@@ -1,28 +1,27 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "../../i18n/navigation";
 import { useEffect, useState } from "react";
 
-const links = [
-  { href: "/chat", label: "💬 채팅" },
-  { href: "/mindmap", label: "🧠 마인드맵" },
-  { href: "/todo", label: "✅ 할 일" },
-  { href: "/invite", label: "🎉 초대장" },
-  { href: "/portfolio", label: "📄 포트폴리오" },
-  { href: "/three", label: "🎲 Three.js" },
+const NAV_KEYS = [
+  { href: "/chat" as const, icon: "💬", key: "chat" as const },
+  { href: "/mindmap" as const, icon: "🧠", key: "mindmap" as const },
+  { href: "/todo" as const, icon: "✅", key: "todo" as const },
+  { href: "/invite" as const, icon: "🎉", key: "invite" as const },
+  { href: "/portfolio" as const, icon: "📄", key: "portfolio" as const },
+  { href: "/three" as const, icon: "🎲", key: "three" as const },
 ];
 
 export function MobileNav() {
+  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // 페이지 이동 시 닫기
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // 열릴 때 body 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -32,7 +31,6 @@ export function MobileNav() {
 
   return (
     <>
-      {/* 햄버거 버튼 — 모바일에서만 표시 */}
       <button
         className="show-mobile"
         onClick={() => setOpen(true)}
@@ -79,21 +77,18 @@ export function MobileNav() {
         />
       </button>
 
-      {/* 오버레이 */}
       <div
         className={`mobile-overlay${open ? " open" : ""}`}
         onClick={() => setOpen(false)}
         aria-hidden="true"
       />
 
-      {/* 드로어 */}
       <div
         className={`mobile-drawer${open ? " open" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="내비게이션 메뉴"
       >
-        {/* 드로어 헤더 */}
         <div
           style={{
             display: "flex",
@@ -123,9 +118,8 @@ export function MobileNav() {
           </button>
         </div>
 
-        {/* 링크 목록 */}
         <nav style={{ flex: 1, padding: "12px 0" }}>
-          {links.map(({ href, label }) => {
+          {NAV_KEYS.map(({ href, icon, key }) => {
             const active = pathname.startsWith(href);
             return (
               <Link
@@ -143,7 +137,7 @@ export function MobileNav() {
                   transition: "all 0.1s",
                 }}
               >
-                {label}
+                {icon} {t(key)}
               </Link>
             );
           })}

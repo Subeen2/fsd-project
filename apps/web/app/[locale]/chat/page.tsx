@@ -11,7 +11,7 @@ import {
   CHAT_BGS,
   FONT_SIZES,
 } from "@fsd/features";
-import { css } from "../../styled-system/css";
+import { css } from "../../../styled-system/css";
 import { ChatThemePanel } from "./ChatThemePanel";
 
 export default function ChatPage() {

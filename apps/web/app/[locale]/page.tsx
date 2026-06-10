@@ -1,57 +1,55 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "../../i18n/navigation";
 
 const CARDS = [
   {
-    href: "/chat",
+    href: "/chat" as const,
     icon: "💬",
-    label: "채팅",
-    desc: "실시간으로 대화하세요",
+    key: "chat" as const,
     hoverColor: "#2563eb",
     hoverShadow: "rgba(37,99,235,0.12)",
   },
   {
-    href: "/mindmap",
+    href: "/mindmap" as const,
     icon: "🧠",
-    label: "마인드맵",
-    desc: "아이디어를 구조화하세요",
+    key: "mindmap" as const,
     hoverColor: "#7c3aed",
     hoverShadow: "rgba(124,58,237,0.12)",
   },
   {
-    href: "/invite",
+    href: "/invite" as const,
     icon: "🎉",
-    label: "초대장",
-    desc: "초대장을 디자인하고 저장",
+    key: "invite" as const,
     hoverColor: "#f59e0b",
     hoverShadow: "rgba(245,158,11,0.12)",
   },
   {
-    href: "/portfolio",
+    href: "/portfolio" as const,
     icon: "📄",
-    label: "포트폴리오",
-    desc: "포트폴리오를 만들고 PDF로",
+    key: "portfolio" as const,
     hoverColor: "#0ea5e9",
     hoverShadow: "rgba(14,165,233,0.12)",
   },
   {
-    href: "/three",
+    href: "/three" as const,
     icon: "🎲",
-    label: "Three.js",
-    desc: "3D 인터랙티브 데모",
+    key: "three" as const,
     hoverColor: "#6366f1",
     hoverShadow: "rgba(99,102,241,0.12)",
   },
   {
-    href: "/todo",
+    href: "/todo" as const,
     icon: "✅",
-    label: "할 일",
-    desc: "할 일과 체크리스트 관리",
+    key: "todo" as const,
     hoverColor: "#16a34a",
     hoverShadow: "rgba(22,163,74,0.12)",
   },
 ] as const;
 
 export default function HomePage() {
+  const t = useTranslations("home");
+  const tc = useTranslations("home.cards");
+
   return (
     <div
       style={{
@@ -65,7 +63,6 @@ export default function HomePage() {
         gap: 40,
       }}
     >
-      {/* 타이틀 */}
       <div style={{ textAlign: "center" }}>
         <h1
           style={{
@@ -76,7 +73,7 @@ export default function HomePage() {
             letterSpacing: "-0.02em",
           }}
         >
-          Mindwave
+          {t("title")}
         </h1>
         <p
           style={{
@@ -85,13 +82,12 @@ export default function HomePage() {
             margin: "10px 0 0",
           }}
         >
-          무엇을 시작할까요?
+          {t("subtitle")}
         </p>
       </div>
 
-      {/* 카드 그리드 */}
       <div className="home-grid">
-        {CARDS.map(({ href, icon, label, desc, hoverColor, hoverShadow }) => (
+        {CARDS.map(({ href, icon, key, hoverColor, hoverShadow }) => (
           <Link key={href} href={href} style={{ textDecoration: "none" }}>
             <div
               className="home-card"
@@ -104,8 +100,8 @@ export default function HomePage() {
             >
               <span className="home-card-icon">{icon}</span>
               <div style={{ textAlign: "center" }}>
-                <p className="home-card-title">{label}</p>
-                <p className="home-card-desc">{desc}</p>
+                <p className="home-card-title">{tc(`${key}.label`)}</p>
+                <p className="home-card-desc">{tc(`${key}.desc`)}</p>
               </div>
             </div>
           </Link>

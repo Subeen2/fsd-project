@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "chat": "채팅",
+    "mindmap": "마인드맵",
+    "todo": "할 일",
+    "invite": "초대장",
+    "portfolio": "포트폴리오",
+    "three": "Three.js"
+  },
+  "home": {
+    "title": "Mindwave",
+    "subtitle": "무엇을 시작할까요?",
+    "cards": {
+      "chat": { "label": "채팅", "desc": "실시간으로 대화하세요" },
+      "mindmap": { "label": "마인드맵", "desc": "아이디어를 구조화하세요" },
+      "invite": { "label": "초대장", "desc": "초대장을 디자인하고 저장" },
+      "portfolio": {
+        "label": "포트폴리오",
+        "desc": "포트폴리오를 만들고 PDF로"
+      },
+      "three": { "label": "Three.js", "desc": "3D 인터랙티브 데모" },
+      "todo": { "label": "할 일", "desc": "할 일과 체크리스트 관리" }
+    }
+  },
+  "auth": {
+    "login": "로그인",
+    "register": "회원가입",
+    "logout": "로그아웃",
+    "email": "이메일",
+    "password": "비밀번호",
+    "username": "사용자 이름",
+    "loginButton": "로그인",
+    "registerButton": "회원가입",
+    "noAccount": "계정이 없으신가요?",
+    "hasAccount": "이미 계정이 있으신가요?"
+  }
+}
