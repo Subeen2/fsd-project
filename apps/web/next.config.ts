@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import createNextIntlPlugin from "next-intl/plugin";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env["ANALYZE"] === "true",
@@ -22,4 +23,15 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(withNextIntl(nextConfig));
+const config = withBundleAnalyzer(withNextIntl(nextConfig));
+
+export default withSentryConfig(config, {
+  // 소스맵을 Sentry에 업로드 (SENTRY_AUTH_TOKEN 필요)
+  silent: !process.env.CI,
+  // 빌드 시 소스맵 업로드 비활성화 (토큰 없을 때)
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+  // 번들 크기 최적화 — 사용하는 integration만 포함
+  disableLogger: true,
+});
