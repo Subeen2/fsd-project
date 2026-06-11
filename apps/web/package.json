@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "prisma generate && tsc --noEmit",
-    "panda": "panda codegen"
+    "panda": "panda codegen",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@fsd/api": "workspace:*",
@@ -18,12 +20,14 @@
     "@fsd/ui": "workspace:*",
     "@pandacss/dev": "^1.11.1",
     "@prisma/client": "^5.22.0",
+    "@sentry/nextjs": "^10.57.0",
     "@tanstack/react-query": "^5.100.9",
     "@tanstack/react-query-devtools": "^5.100.9",
     "@types/three": "^0.184.1",
     "@xyflow/react": "^12.3.6",
     "bcryptjs": "^3.0.3",
     "html2canvas": "^1.4.1",
+    "import-in-the-middle": "^3.0.2",
     "jsonwebtoken": "^9.0.3",
     "jspdf": "^4.2.1",
     "lil-gui": "^0.21.0",
@@ -32,12 +36,14 @@
     "postcss": "^8.5.14",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "require-in-the-middle": "^8.0.1",
     "three": "^0.184.0",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@fsd/config": "workspace:*",
     "@next/bundle-analyzer": "^16.2.7",
+    "@playwright/test": "^1.60.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/html2canvas": "^1.0.0",
     "@types/jsonwebtoken": "^9.0.10",
