@@ -8,8 +8,8 @@ const NAV_KEYS = [
   { href: "/chat" as const, icon: "💬", key: "chat" as const },
   { href: "/mindmap" as const, icon: "🧠", key: "mindmap" as const },
   { href: "/todo" as const, icon: "✅", key: "todo" as const },
-  { href: "/invite" as const, icon: "🎉", key: "invite" as const },
-  { href: "/portfolio" as const, icon: "📄", key: "portfolio" as const },
+  // { href: "/invite" as const, icon: "🎉", key: "invite" as const },
+  // { href: "/portfolio" as const, icon: "📄", key: "portfolio" as const },
   { href: "/three" as const, icon: "🎲", key: "three" as const },
 ];
 
