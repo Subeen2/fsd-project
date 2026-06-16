@@ -45,9 +45,9 @@ describe("useUiStore", () => {
         .addToast({ message: "저장됐습니다", variant: "success" });
       const { toasts } = useUiStore.getState();
       expect(toasts).toHaveLength(1);
-      expect(toasts[0].message).toBe("저장됐습니다");
-      expect(toasts[0].variant).toBe("success");
-      expect(toasts[0].id).toBeTruthy();
+      expect(toasts[0]!.message).toBe("저장됐습니다");
+      expect(toasts[0]!.variant).toBe("success");
+      expect(toasts[0]!.id).toBeTruthy();
     });
 
     it("addToast appends multiple toasts", () => {
@@ -60,14 +60,14 @@ describe("useUiStore", () => {
       useUiStore.getState().addToast({ message: "A", variant: "info" });
       useUiStore.getState().addToast({ message: "B", variant: "info" });
       const { toasts } = useUiStore.getState();
-      expect(toasts[0].id).not.toBe(toasts[1].id);
+      expect(toasts[0]!.id).not.toBe(toasts[1]!.id);
     });
 
     it("removeToast removes the matching toast", () => {
       useUiStore
         .getState()
         .addToast({ message: "삭제될 토스트", variant: "error" });
-      const id = useUiStore.getState().toasts[0].id;
+      const id = useUiStore.getState().toasts[0]!.id;
       useUiStore.getState().removeToast(id);
       expect(useUiStore.getState().toasts).toHaveLength(0);
     });
@@ -75,11 +75,11 @@ describe("useUiStore", () => {
     it("removeToast only removes the targeted toast", () => {
       useUiStore.getState().addToast({ message: "A", variant: "info" });
       useUiStore.getState().addToast({ message: "B", variant: "success" });
-      const idToRemove = useUiStore.getState().toasts[0].id;
+      const idToRemove = useUiStore.getState().toasts[0]!.id;
       useUiStore.getState().removeToast(idToRemove);
       const { toasts } = useUiStore.getState();
       expect(toasts).toHaveLength(1);
-      expect(toasts[0].message).toBe("B");
+      expect(toasts[0]!.message).toBe("B");
     });
 
     it("removeToast with unknown id does nothing", () => {

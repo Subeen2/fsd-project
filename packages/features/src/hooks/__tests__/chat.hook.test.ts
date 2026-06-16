@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { ChatUser } from "@fsd/api";
 import { useChatSocket } from "../chat.hook";
 
 class MockWebSocket {
@@ -35,6 +36,20 @@ class MockWebSocket {
     this.onmessage?.({ data: JSON.stringify(data) });
   }
 }
+
+const mockUser: ChatUser = {
+  id: "u1",
+  username: "alice",
+  displayName: "Alice",
+  avatarUrl: null,
+};
+
+const mockUser2: ChatUser = {
+  id: "u2",
+  username: "bob",
+  displayName: "Bob",
+  avatarUrl: null,
+};
 
 beforeEach(() => {
   vi.stubGlobal("WebSocket", MockWebSocket);
@@ -77,7 +92,7 @@ describe("useChatSocket — 연결", () => {
       MockWebSocket.lastInstance.open();
     });
 
-    const joinMsg = JSON.parse(MockWebSocket.lastInstance.sent[0]);
+    const joinMsg = JSON.parse(MockWebSocket.lastInstance.sent[0]!);
     expect(joinMsg.type).toBe("chat:join");
     expect(joinMsg.payload.token).toBe("my-token");
   });
@@ -96,7 +111,7 @@ describe("useChatSocket — 메시지 수신", () => {
             {
               id: "1",
               content: "안녕",
-              author: { id: "u1", username: "alice" },
+              author: mockUser,
               createdAt: new Date().toISOString(),
             },
           ],
@@ -105,7 +120,7 @@ describe("useChatSocket — 메시지 수신", () => {
     });
 
     await waitFor(() => expect(result.current.messages).toHaveLength(1));
-    expect(result.current.messages[0].content).toBe("안녕");
+    expect(result.current.messages[0]!.content).toBe("안녕");
   });
 
   it("chat:message 수신 시 messages에 추가", async () => {
@@ -119,7 +134,7 @@ describe("useChatSocket — 메시지 수신", () => {
           message: {
             id: "msg-1",
             content: "새 메시지",
-            author: { id: "u2", username: "bob" },
+            author: mockUser2,
             createdAt: new Date().toISOString(),
           },
         },
@@ -127,7 +142,7 @@ describe("useChatSocket — 메시지 수신", () => {
     });
 
     await waitFor(() => expect(result.current.messages).toHaveLength(1));
-    expect(result.current.messages[0].id).toBe("msg-1");
+    expect(result.current.messages[0]!.id).toBe("msg-1");
   });
 
   it("중복 id 메시지는 무시", async () => {
@@ -135,7 +150,7 @@ describe("useChatSocket — 메시지 수신", () => {
     const msg = {
       id: "msg-1",
       content: "중복",
-      author: { id: "u1", username: "alice" },
+      author: mockUser,
       createdAt: new Date().toISOString(),
     };
 
@@ -161,12 +176,12 @@ describe("useChatSocket — 메시지 수신", () => {
       MockWebSocket.lastInstance.open();
       MockWebSocket.lastInstance.emit({
         type: "chat:user_list",
-        payload: { users: [{ id: "u1", username: "alice" }] },
+        payload: { users: [mockUser] },
       });
     });
 
     await waitFor(() => expect(result.current.onlineUsers).toHaveLength(1));
-    expect(result.current.onlineUsers[0].username).toBe("alice");
+    expect(result.current.onlineUsers[0]!.username).toBe("alice");
   });
 
   it("chat:user_joined 수신 시 onlineUsers에 추가", async () => {
@@ -176,7 +191,7 @@ describe("useChatSocket — 메시지 수신", () => {
       MockWebSocket.lastInstance.open();
       MockWebSocket.lastInstance.emit({
         type: "chat:user_joined",
-        payload: { user: { id: "u2", username: "bob" } },
+        payload: { user: mockUser2 },
       });
     });
 
@@ -190,12 +205,7 @@ describe("useChatSocket — 메시지 수신", () => {
       MockWebSocket.lastInstance.open();
       MockWebSocket.lastInstance.emit({
         type: "chat:user_list",
-        payload: {
-          users: [
-            { id: "u1", username: "alice" },
-            { id: "u2", username: "bob" },
-          ],
-        },
+        payload: { users: [mockUser, mockUser2] },
       });
     });
 
@@ -209,15 +219,13 @@ describe("useChatSocket — 메시지 수신", () => {
     });
 
     await waitFor(() => expect(result.current.onlineUsers).toHaveLength(1));
-    expect(result.current.onlineUsers[0].username).toBe("bob");
+    expect(result.current.onlineUsers[0]!.username).toBe("bob");
   });
 });
 
 describe("useChatSocket — sendMessage", () => {
   it("OPEN 상태에서 chat:send 전송", () => {
-    const { result } = renderHook(() =>
-      useChatSocket("token", { id: "u1", username: "alice" }),
-    );
+    const { result } = renderHook(() => useChatSocket("token", mockUser));
 
     act(() => {
       MockWebSocket.lastInstance.open();
@@ -228,15 +236,13 @@ describe("useChatSocket — sendMessage", () => {
     });
 
     const sent = MockWebSocket.lastInstance.sent.map((s) => JSON.parse(s));
-    const sendMsg = sent.find((m) => m.type === "chat:send");
+    const sendMsg = sent.find((m: { type: string }) => m.type === "chat:send");
     expect(sendMsg).toBeDefined();
     expect(sendMsg.payload.content).toBe("hello");
   });
 
   it("유저 있으면 낙관적 메시지 즉시 추가", async () => {
-    const { result } = renderHook(() =>
-      useChatSocket("token", { id: "u1", username: "alice" }),
-    );
+    const { result } = renderHook(() => useChatSocket("token", mockUser));
 
     act(() => {
       MockWebSocket.lastInstance.open();
@@ -247,14 +253,12 @@ describe("useChatSocket — sendMessage", () => {
     });
 
     await waitFor(() => expect(result.current.messages).toHaveLength(1));
-    expect(result.current.messages[0].pending).toBe(true);
-    expect(result.current.messages[0].content).toBe("낙관적 메시지");
+    expect(result.current.messages[0]!.pending).toBe(true);
+    expect(result.current.messages[0]!.content).toBe("낙관적 메시지");
   });
 
   it("서버 응답 메시지가 오면 낙관적 메시지 교체", async () => {
-    const { result } = renderHook(() =>
-      useChatSocket("token", { id: "u1", username: "alice" }),
-    );
+    const { result } = renderHook(() => useChatSocket("token", mockUser));
 
     act(() => {
       MockWebSocket.lastInstance.open();
@@ -270,7 +274,7 @@ describe("useChatSocket — sendMessage", () => {
           message: {
             id: "server-id",
             content: "교체될 메시지",
-            author: { id: "u1", username: "alice" },
+            author: mockUser,
             createdAt: new Date().toISOString(),
           },
         },
@@ -280,7 +284,7 @@ describe("useChatSocket — sendMessage", () => {
     await waitFor(() =>
       expect(result.current.messages[0]?.pending).toBeUndefined(),
     );
-    expect(result.current.messages[0].id).toBe("server-id");
+    expect(result.current.messages[0]!.id).toBe("server-id");
     expect(result.current.messages).toHaveLength(1);
   });
 });
