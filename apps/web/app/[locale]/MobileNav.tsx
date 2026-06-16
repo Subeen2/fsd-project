@@ -98,9 +98,17 @@ export function MobileNav() {
             borderBottom: "1px solid #f1f5f9",
           }}
         >
-          <span style={{ fontSize: 18, fontWeight: 700, color: "#2563eb" }}>
+          <Link
+            href="/"
+            style={{
+              fontSize: 18,
+              fontWeight: 700,
+              color: "#2563eb",
+              textDecoration: "none",
+            }}
+          >
             Mindwave
-          </span>
+          </Link>
           <button
             onClick={() => setOpen(false)}
             aria-label="메뉴 닫기"
