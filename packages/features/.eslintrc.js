@@ -2,4 +2,5 @@
 module.exports = {
   extends: [require.resolve("@fsd/config/eslint/base")],
   parserOptions: { project: "./tsconfig.json" },
+  ignorePatterns: ["src/**/__tests__/**"],
 };

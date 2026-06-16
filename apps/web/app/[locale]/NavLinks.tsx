@@ -1,22 +1,24 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "../../i18n/navigation";
 
-const links = [
-  { href: "/chat", label: "채팅" },
-  { href: "/mindmap", label: "마인드맵" },
-  { href: "/todo", label: "할 일" },
-  { href: "/invite", label: "초대장" },
-  { href: "/portfolio", label: "포트폴리오" },
-  { href: "/three", label: "Three.js" },
+const NAV_KEYS = [
+  { href: "/chat" as const, key: "chat" as const },
+  { href: "/mindmap" as const, key: "mindmap" as const },
+  { href: "/todo" as const, key: "todo" as const },
+  // { href: "/invite" as const, key: "invite" as const },
+  // { href: "/portfolio" as const, key: "portfolio" as const },
+  { href: "/three" as const, key: "three" as const },
 ];
 
 export function NavLinks() {
+  const t = useTranslations("nav");
   const pathname = usePathname();
+
   return (
     <nav className="hide-mobile" style={{ display: "flex", gap: "4px" }}>
-      {links.map(({ href, label }) => {
+      {NAV_KEYS.map(({ href, key }) => {
         const active = pathname.startsWith(href);
         return (
           <Link
@@ -33,7 +35,7 @@ export function NavLinks() {
               transition: "all 0.1s",
             }}
           >
-            {label}
+            {t(key)}
           </Link>
         );
       })}

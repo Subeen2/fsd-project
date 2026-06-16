@@ -21,7 +21,7 @@ body {
 /* 홈 카드 그리드 */
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(6, 200px);
+  grid-template-columns: repeat(4, 200px);
   gap: 20px;
   justify-content: center;
   padding: 0 16px;
@@ -29,8 +29,8 @@ body {
 
 @media (max-width: 1280px) {
   .home-grid {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 680px;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 860px;
     width: 100%;
   }
 }

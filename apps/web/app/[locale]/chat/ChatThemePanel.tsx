@@ -10,7 +10,7 @@ import {
   type FontSize,
 } from "@fsd/features";
 import { Input } from "@fsd/ui";
-import { css } from "../../styled-system/css";
+import { css } from "../../../styled-system/css";
 
 interface Props {
   open: boolean;

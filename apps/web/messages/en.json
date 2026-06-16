@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "chat": "Chat",
+    "mindmap": "Mindmap",
+    "todo": "Todo",
+    "invite": "Invite",
+    "portfolio": "Portfolio",
+    "three": "Three.js"
+  },
+  "home": {
+    "title": "Mindwave",
+    "subtitle": "What would you like to start?",
+    "cards": {
+      "chat": { "label": "Chat", "desc": "Talk in real time" },
+      "mindmap": { "label": "Mindmap", "desc": "Structure your ideas" },
+      "invite": { "label": "Invite", "desc": "Design and save invitations" },
+      "portfolio": {
+        "label": "Portfolio",
+        "desc": "Build a portfolio and export to PDF"
+      },
+      "three": { "label": "Three.js", "desc": "3D interactive demo" },
+      "todo": { "label": "Todo", "desc": "Manage tasks and checklists" }
+    }
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "usernameHint": "Letters, numbers, and underscores only",
+    "displayName": "Display name",
+    "loginButton": "Sign in",
+    "registerButton": "Create account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Sign in",
+    "registerLink": "Register",
+    "loginError": "Login failed. Please try again.",
+    "registerError": "Registration failed. Please try again."
+  }
+}
