@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useChatTheme } from "@fsd/features";
 import { css } from "../../styled-system/css";
+import { Link } from "../../i18n/navigation";
 
 export function HeaderTitle() {
   const { roomName } = useChatTheme();
@@ -13,15 +14,18 @@ export function HeaderTitle() {
   }, []);
 
   return (
-    <span
+    <Link
+      href="/"
       className={css({
         fontSize: "xl",
         fontWeight: "bold",
         color: "blue.600",
+        textDecoration: "none",
+        _hover: { opacity: 0.8 },
       })}
       suppressHydrationWarning
     >
       {mounted ? roomName : "Mindwave"}
-    </span>
+    </Link>
   );
 }
